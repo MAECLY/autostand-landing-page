@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Lint, typecheck, build, E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # @autostand/ui is a private repo in this org. The default GITHUB_TOKEN is
+      # scoped to THIS repo only, so git cannot fetch it — the install fails with
+      # an unhelpful "could not read Username for https://github.com". Fail early
+      # with something actionable instead.
+      - name: Check the package token is configured
+        env:
+          UI_REPO_TOKEN: ${{ secrets.UI_REPO_TOKEN }}
+        run: |
+          if [ -z "$UI_REPO_TOKEN" ]; then
+            echo "::error::Secret UI_REPO_TOKEN is not set. It needs a token with read access to MAECLY/autostand-ui, which this build installs @autostand/ui from. See README.md § Deploying."
+            exit 1
+          fi
+
+      - name: Authenticate git for the private dependency
+        env:
+          UI_REPO_TOKEN: ${{ secrets.UI_REPO_TOKEN }}
+        run: |
+          git config --global url."https://x-access-token:${UI_REPO_TOKEN}@github.com/".insteadOf "https://github.com/"
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm test:e2e
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            e2e/.artifacts/
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
