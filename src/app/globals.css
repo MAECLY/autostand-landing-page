@@ -1,0 +1,20 @@
+/* The site's stylesheet. Tailwind v4, the tokens and the @theme mapping all come
+   from @autostand/ui, so the marketing site and the product cannot drift apart. */
+
+@import "@autostand/ui/styles.css";
+
+/* Tailwind cannot auto-detect classes inside node_modules, so the package's own
+   component sources have to be pointed at explicitly. Without this, every class
+   only the design system uses is dropped from the build. */
+@source "../../node_modules/@autostand/ui/components";
+@source "../../node_modules/@autostand/ui/icons";
+
+/* The one gradient shared with the app's onboarding screen — a visitor who
+   installs the app should recognise what they saw on the site. */
+.hero-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--bg-base) 0%,
+    color-mix(in srgb, var(--brand-primary) 10%, var(--bg-surface)) 100%
+  );
+}

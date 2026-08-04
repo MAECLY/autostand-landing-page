@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+.env*.local
+.vercel
+e2e/.artifacts/
+playwright-report/
+test-results/
+.DS_Store
+*.log
+next-env.d.ts
