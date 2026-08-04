@@ -9,6 +9,13 @@
 @source "../../node_modules/@autostand/ui/components";
 @source "../../node_modules/@autostand/ui/icons";
 
+@theme {
+  /* Display size for the hero headline only. Deliberately site-local rather than
+     a package token: nothing in the product renders type this large, and the
+     design system should not carry a scale step only marketing uses. */
+  --text-hero: 3.5rem;
+}
+
 /* The one gradient shared with the app's onboarding screen — a visitor who
    installs the app should recognise what they saw on the site. */
 .hero-gradient {

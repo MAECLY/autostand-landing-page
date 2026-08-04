@@ -34,11 +34,19 @@ jobs:
             exit 1
           fi
 
+      # pnpm normalises any GitHub specifier to git+ssh:// at resolution time —
+      # pnpm-lock.yaml pins ssh://git@github.com/... no matter what package.json
+      # says — so rewriting only the https form leaves the real URL untouched and
+      # the install dies on "Permission denied (publickey)". All three forms are
+      # mapped onto the token so no SSH key is needed anywhere.
       - name: Authenticate git for the private dependency
         env:
           UI_REPO_TOKEN: ${{ secrets.UI_REPO_TOKEN }}
         run: |
-          git config --global url."https://x-access-token:${UI_REPO_TOKEN}@github.com/".insteadOf "https://github.com/"
+          token_url="https://x-access-token:${UI_REPO_TOKEN}@github.com/"
+          git config --global url."$token_url".insteadOf "ssh://git@github.com/"
+          git config --global --add url."$token_url".insteadOf "git@github.com:"
+          git config --global --add url."$token_url".insteadOf "https://github.com/"
 
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4

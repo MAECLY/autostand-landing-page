@@ -1,0 +1,4 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "if [ -z \"$UI_REPO_TOKEN\" ]; then echo 'UI_REPO_TOKEN is not set, so git cannot fetch the private @autostand/ui. See README.md -> Deploying to Vercel.' >&2; exit 1; fi; git config --global url.\"https://x-access-token:$UI_REPO_TOKEN@github.com/\".insteadOf \"ssh://git@github.com/\"; git config --global --add url.\"https://x-access-token:$UI_REPO_TOKEN@github.com/\".insteadOf \"git@github.com:\"; git config --global --add url.\"https://x-access-token:$UI_REPO_TOKEN@github.com/\".insteadOf \"https://github.com/\"; pnpm install --frozen-lockfile"
+}

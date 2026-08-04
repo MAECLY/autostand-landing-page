@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@autostand/ui':
-        specifier: github:MAECLY/autostand-ui#main
-        version: git+ssh://git@github.com/MAECLY/autostand-ui.git#d3c7688df5b97e76f40f20147759301ba77dba0d(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: git+https://github.com/MAECLY/autostand-ui.git#main
+        version: git+ssh://git@github.com/MAECLY/autostand-ui.git#f53413ec16e1765ef3c083f9da0155cc402832d5(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       lucide-react:
         specifier: ^0.460.0
         version: 0.460.0(react@19.2.8)
@@ -70,8 +70,8 @@ packages:
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
 
-  '@autostand/ui@git+ssh://git@github.com/MAECLY/autostand-ui.git#d3c7688df5b97e76f40f20147759301ba77dba0d':
-    resolution: {commit: d3c7688df5b97e76f40f20147759301ba77dba0d, repo: git@github.com:MAECLY/autostand-ui.git, type: git}
+  '@autostand/ui@git+ssh://git@github.com/MAECLY/autostand-ui.git#f53413ec16e1765ef3c083f9da0155cc402832d5':
+    resolution: {commit: f53413ec16e1765ef3c083f9da0155cc402832d5, repo: git@github.com:MAECLY/autostand-ui.git, type: git}
     version: 0.1.0
     peerDependencies:
       react: ^19.0.0
@@ -2459,7 +2459,7 @@ snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
 
-  '@autostand/ui@git+ssh://git@github.com/MAECLY/autostand-ui.git#d3c7688df5b97e76f40f20147759301ba77dba0d(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@autostand/ui@git+ssh://git@github.com/MAECLY/autostand-ui.git#f53413ec16e1765ef3c083f9da0155cc402832d5(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@radix-ui/react-accordion': 1.2.20(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@radix-ui/react-checkbox': 1.3.11(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
