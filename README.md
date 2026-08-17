@@ -12,7 +12,7 @@ visually.
 | Repo | What it is |
 |---|---|
 | `MAECLY/autostand` | the Tauri desktop app — the thing this page describes |
-| `MAECLY/autostand-ui` | `@autostand/ui`, the design system (**private**) |
+| `MAECLY/autostand-ui` | `@autostand/ui`, the design system |
 | `MAECLY/autostand-landing-page` | this repo — deploys to `autostand.maecly.com` |
 
 ## Stack
@@ -28,7 +28,7 @@ visually.
 ## Commands
 
 ```bash
-pnpm install     # see "The private dependency" below before the first run
+pnpm install
 pnpm dev         # next dev      — http://localhost:3000
 pnpm build       # next build    — exports the finished site into out/
 pnpm start       # serve out/ on http://localhost:3000 (scripts/serve-static.mjs)
@@ -37,7 +37,7 @@ pnpm typecheck   # tsc --noEmit
 pnpm test:e2e    # playwright
 ```
 
-## The private dependency
+## The design-system dependency
 
 `@autostand/ui` is declared in `package.json` as a git dependency:
 
@@ -45,13 +45,10 @@ pnpm test:e2e    # playwright
 "@autostand/ui": "github:MAECLY/autostand-ui#main"
 ```
 
-`MAECLY/autostand-ui` is a **private** repo, so `pnpm install` only works for
-someone git can authenticate as. Locally that is normally your SSH key —
-`pnpm-lock.yaml` pins the resolved URL as
-`git+ssh://git@github.com/MAECLY/autostand-ui.git#<commit>`, and pnpm hands that
-URL straight to `git`. If `ssh -T git@github.com` greets you by name, install
-will work. If it fails, so will install, with a `Permission denied (publickey)`
-that does not mention which dependency caused it.
+`MAECLY/autostand-ui` is public, so `pnpm install` needs no credential anywhere:
+pnpm resolves that specifier to a `codeload.github.com` tarball and fetches it
+over anonymous HTTPS. `pnpm-lock.yaml` pins the exact commit, so `#main` moving
+does not change what a build installs until the lockfile is updated.
 
 The package ships TypeScript source rather than a build, so `next.config.ts`
 lists it in `transpilePackages` and Next compiles it like first-party code. That
@@ -126,56 +123,12 @@ Target: **https://autostand.maecly.com**. The build is `next build`; every route
 comes out static, so there is no server runtime to configure and no environment
 variable the *application* reads at runtime.
 
-One thing is not automatic, and it is the thing that breaks a fresh Vercel
-project.
+Vercel's GitHub integration authorises the build to clone this repo, and
+`@autostand/ui` comes from a public repository over anonymous HTTPS, so a fresh
+project needs no token, no install-command override and no `vercel.json`. Import
+the repo and deploy.
 
-### 1. The build has to be able to fetch a private repo
-
-Vercel's GitHub integration authorises the build to clone **this** repo. It does
-not grant the build any access to `MAECLY/autostand-ui`, so `pnpm install` fails
-partway through with an SSH or credentials error. That is the whole problem;
-everything below is the fix.
-
-**a. Create a token with read access to the UI repo.** A GitHub personal access
-token works: fine-grained, scoped to `MAECLY/autostand-ui`, with **Contents:
-Read-only** (a classic token with the `repo` scope also works, but grants far
-more). It only ever needs to read.
-
-**b. Expose it to the build as `UI_REPO_TOKEN`.** Add it as an environment
-variable on the Vercel project for every environment you build (Production and
-Preview at least). Vercel makes project environment variables available to the
-build, install command included — which is what the next step depends on. Do not
-commit it, and do not `echo` it in a build step; build logs are readable by
-anyone with project access.
-
-**c. `vercel.json` does the rest.** It overrides the install command to teach git
-to answer for `github.com` with that token before pnpm asks for the dependency:
-
-```sh
-git config --global url."https://x-access-token:$UI_REPO_TOKEN@github.com/".insteadOf "ssh://git@github.com/"
-git config --global --add url."…".insteadOf "git@github.com:"
-git config --global --add url."…".insteadOf "https://github.com/"
-pnpm install --frozen-lockfile
-```
-
-All three rewrites matter, and the **ssh one is the one that actually fires
-today**: `pnpm-lock.yaml` pins the dependency to
-`git+ssh://git@github.com/MAECLY/autostand-ui.git`, and a rewrite registered only
-for `https://github.com/` leaves an `ssh://` URL untouched — git goes looking for
-a key that does not exist on a build machine and the install dies. The other two
-entries cover the scp-style form and the case where someone re-resolves the
-lockfile over HTTPS.
-
-The command fails loudly with a readable message when `UI_REPO_TOKEN` is missing,
-because the error git produces on its own names neither the token nor the
-dependency.
-
-The token is written into the build container's `~/.gitconfig`, which is thrown
-away with the container. Rotate it like any other credential; when you do, update
-it in Vercel and in the repo's `UI_REPO_TOKEN` Actions secret — CI (see
-`.github/workflows/ci.yml`) needs the same token for the same reason.
-
-### 2. The domain
+### 1. The domain
 
 `autostand.maecly.com` is a subdomain, so it needs one record in the `maecly.com`
 DNS zone: a **CNAME** for the `autostand` label pointing at the target Vercel
@@ -195,9 +148,9 @@ They are literals rather than an environment variable on purpose: the values are
 baked into HTML and XML at build time, and a missing env var would silently
 publish `undefined` in a canonical URL instead of failing the build.
 
-### 3. What must be true for a deploy to be correct
+### 2. What must be true for a deploy to be correct
 
-- `pnpm install` completes, which means `UI_REPO_TOKEN` is set and still valid.
+- `pnpm install` completes against the pinned lockfile.
 - `pnpm build` reports every route as `○ (Static)`.
 - The built HTML references assets as `/brand/…` and `/_next/…` — never
   `/autostand/…`.

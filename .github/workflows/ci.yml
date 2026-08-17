@@ -19,37 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-
-      # @autostand/ui is a private repo in this org. The default GITHUB_TOKEN is
-      # scoped to THIS repo only, so git cannot fetch it — the install fails with
-      # an unhelpful "could not read Username for https://github.com". Fail early
-      # with something actionable instead.
-      - name: Check the package token is configured
-        env:
-          UI_REPO_TOKEN: ${{ secrets.UI_REPO_TOKEN }}
-        run: |
-          if [ -z "$UI_REPO_TOKEN" ]; then
-            echo "::error::Secret UI_REPO_TOKEN is not set. It needs a token with read access to MAECLY/autostand-ui, which this build installs @autostand/ui from. See README.md § Deploying."
-            exit 1
-          fi
-
-      # pnpm normalises any GitHub specifier to git+ssh:// at resolution time —
-      # pnpm-lock.yaml pins ssh://git@github.com/... no matter what package.json
-      # says — so rewriting only the https form leaves the real URL untouched and
-      # the install dies on "Permission denied (publickey)". All three forms are
-      # mapped onto the token so no SSH key is needed anywhere.
-      - name: Authenticate git for the private dependency
-        env:
-          UI_REPO_TOKEN: ${{ secrets.UI_REPO_TOKEN }}
-        run: |
-          token_url="https://x-access-token:${UI_REPO_TOKEN}@github.com/"
-          git config --global url."$token_url".insteadOf "ssh://git@github.com/"
-          git config --global --add url."$token_url".insteadOf "git@github.com:"
-          git config --global --add url."$token_url".insteadOf "https://github.com/"
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: pnpm
@@ -66,7 +39,7 @@ jobs:
 
       - name: Upload failure artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-artifacts
           path: |
