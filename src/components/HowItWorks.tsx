@@ -32,7 +32,7 @@ const STEPS: readonly Step[] = [
     title: "Render",
     // The deterministic renderer is the fallback, not a parallel run: core's
     // `render` computes it only when the model body is absent or fails validation.
-    body: "Sends the scrubbed facts to your provider — Claude, Ollama, OpenAI/Codex, Gemini or Grok, CLI first and API second — and renders deterministically instead when the model is missing or its answer fails validation.",
+    body: "Sends the scrubbed facts to the first healthy provider in your order — Claude, Ollama, OpenAI/Codex, Gemini, Grok or the built-in local model — and renders deterministically instead when every one of them is missing, exhausted or returns something the validator rejects.",
   },
   {
     title: "Merge",
@@ -74,7 +74,11 @@ export function HowItWorks({ id = "how-it-works", className }: HowItWorksProps) 
           How it works
         </h2>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          One trigger, six steps, always in this order. Nothing is written until the last two.
+          One trigger, six steps, always in this order. Nothing is written until the last two. The
+          trigger is normally your machine&apos;s own scheduler — a launchd agent, a systemd{" "}
+          <code className="rounded-sm bg-inset px-1 py-0.5 font-mono text-base">--user</code> timer
+          or a Task Scheduler job — so a closed app still files a standup, and a missed run is
+          filled from what is already on disk.
         </p>
 
         {/* Preflight strips list markers, which also strips list semantics in Safari —

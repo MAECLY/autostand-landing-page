@@ -3,12 +3,13 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Playwright config for the marketing site.
  *
- * The suite runs against `next build` + `next start` — the production server, not
- * `next dev`. That is deliberate: the dev server compiles on demand, serves
- * unhashed asset URLs and re-renders every request, so a dev-only pass would hide
- * exactly the failures this suite exists to catch — a section that only renders
- * because a module was hot-reloaded, a `public/` asset that never made it into the
- * build, a hashed chunk the HTML points at but the server does not have.
+ * The suite runs against `next build` + a static server over the exported out/
+ * directory — the artifact that ships, not `next dev`. That is deliberate: the
+ * dev server compiles on demand, serves unhashed asset URLs and re-renders every
+ * request, so a dev-only pass would hide exactly the failures this suite exists
+ * to catch — a section that only renders because a module was hot-reloaded, a
+ * `public/` asset that never made it into the build, a hashed chunk the HTML
+ * points at but the directory does not have.
  *
  * The site is served at the domain root. The Astro build this was ported from
  * lived under `/autostand` on GitHub Pages; on Vercel there is no base path, so
@@ -65,8 +66,13 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 
   webServer: {
-    // Build, then serve the build with the real production server.
-    command: `pnpm run build && pnpm exec next start --hostname ${HOST} --port ${PORT}`,
+    // Build, then serve the exported build. `next start` is not an option any
+    // more: `output: "export"` produces out/ and no server build, and Next
+    // refuses to start against it. scripts/serve-static.mjs serves those files
+    // the way the static host does — including a 404 for an unknown path, which
+    // e2e/assets.spec.ts asserts on.
+    command: "pnpm run build && node scripts/serve-static.mjs",
+    env: { HOST, PORT: String(PORT) },
     url: `${ORIGIN}/`,
     reuseExistingServer: !isCi,
     // A cold `next build` on CI compiles @autostand/ui from source as well.

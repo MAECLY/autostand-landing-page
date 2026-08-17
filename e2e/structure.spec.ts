@@ -66,6 +66,7 @@ test.describe("with JavaScript", () => {
     }
 
     // Each section owns a heading, so the page outline is not a wall of prose.
+    await expect(page.getByRole("heading", { name: "autostand 1.0.0" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "One compile a day" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
     await expect(
@@ -84,13 +85,93 @@ test.describe("with JavaScript", () => {
     await hydrated(faqAccordion(page), "the FAQ accordion");
   });
 
-  test("renders the dashboard mockup as a single labelled image", async ({ page }) => {
-    const mockup = page.getByRole("img", { name: /Illustration of the autostand dashboard/ });
-    await expect(mockup).toBeVisible();
+  test("puts a real capture of the app above the fold", async ({ page }) => {
+    // The hero used to hold a hand-drawn recreation of the dashboard, because
+    // there was nothing to photograph. v1.0.0 ships, so this is a PNG of the real
+    // UI — and it is the page's LCP, which is what the two attributes pin.
+    const hero = page.locator('main img[src="/screenshots/01-dashboard.png"]');
+    await expect(hero).toHaveCount(1);
+    await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute("loading", "eager");
+    await expect(hero).toHaveAttribute("fetchpriority", "high");
 
-    // Nothing inside is interactive: a focusable control in there would be
-    // reachable by keyboard yet invisible to anyone reading the label.
-    await expect(mockup.locator("a, button, input, select, textarea, [tabindex]")).toHaveCount(0);
+    // Intrinsic size, so the browser reserves the box before the bytes land and
+    // the copy under the hero does not jump when it decodes.
+    await expect(hero).toHaveAttribute("width", "1440");
+    await expect(hero).toHaveAttribute("height", "900");
+  });
+
+  test("every capture below the fold is lazy and describes itself", async ({ page }) => {
+    const captures = page.locator('main img[src^="/screenshots/"]');
+    // The hero plus the three in the features section.
+    await expect(captures).toHaveCount(4);
+
+    const described = await captures.evaluateAll((elements) =>
+      elements.map((element) => {
+        const image = element as HTMLImageElement;
+        return {
+          src: image.getAttribute("src") ?? "",
+          alt: image.getAttribute("alt") ?? "",
+          loading: image.getAttribute("loading") ?? "",
+        };
+      }),
+    );
+
+    for (const capture of described.slice(1)) {
+      expect(capture.loading, `loading of ${capture.src}`).toBe("lazy");
+    }
+
+    for (const capture of described) {
+      // "screenshot" is what the element already is; the alt has to say what is
+      // on screen instead, which takes more than a couple of words.
+      expect(capture.alt.length, `alt of ${capture.src}`).toBeGreaterThan(40);
+      expect(capture.alt.toLowerCase(), `alt of ${capture.src}`).not.toContain("screenshot");
+    }
+  });
+
+  test("names the real installer for every platform", async ({ page }) => {
+    // The release attaches exactly one asset per platform. Naming the wrong file
+    // sends someone to a download that is not there.
+    const download = page.locator("#download");
+    await expect(download.getByText("autostand_1.0.0_aarch64.dmg")).toBeVisible();
+    await expect(download.getByText("autostand_1.0.0_x64-setup.exe")).toBeVisible();
+    await expect(download.getByText("autostand_1.0.0_amd64.AppImage")).toBeVisible();
+
+    // All three reachable, always — the platform hint only highlights one.
+    const links = download.getByRole("link", { name: /^Download for / });
+    await expect(links).toHaveCount(3);
+    for (const link of await links.all()) {
+      await expect(link).toHaveAttribute(
+        "href",
+        "https://github.com/MAECLY/autostand/releases/latest",
+      );
+    }
+  });
+
+  test("prints the Gatekeeper workaround next to the macOS download", async ({ page }) => {
+    // Not in the FAQ at the bottom of the page: someone whose Mac has just told
+    // them the app is damaged is looking at the download card, not scrolling on.
+    await expect(
+      page.locator("#download").getByText("xattr -rd com.apple.quarantine /Applications/autostand.app"),
+    ).toBeVisible();
+  });
+
+  test("states what the Linux AppImage actually needs", async ({ page }) => {
+    // "Linux" on its own promises RHEL 9, Alpine and ARM boards a build made on
+    // ubuntu-22.04 cannot deliver.
+    const linuxCard = page.locator("#download li", {
+      hasText: "autostand_1.0.0_amd64.AppImage",
+    });
+    await expect(linuxCard).toHaveCount(1);
+
+    const copy = await linuxCard.innerText();
+    expect(copy).toMatch(/glibc/);
+    expect(copy).toMatch(/2\.35/);
+    expect(copy).toMatch(/x86_64/);
+    // The distributions that are explicitly out, named rather than implied.
+    expect(copy).toMatch(/RHEL 9/);
+    expect(copy).toMatch(/musl/);
+    expect(copy).toMatch(/ARM/);
   });
 });
 
@@ -115,11 +196,16 @@ test.describe("without JavaScript", () => {
     // static HTML: something a crawler can index and a reader can read before —
     // or entirely without — hydration.
     await expect(
-      page.locator("#faq").getByRole("button", { name: "Which AI providers can write my standup?" }),
+      page.locator("#faq").getByRole("button", { name: "Does anything I write get sent to a server?" }),
     ).toHaveAttribute("aria-expanded", "true");
-    await expect(page.locator("#faq").getByText(/Claude, Ollama, OpenAI\/Codex/)).toBeVisible();
+    await expect(page.locator("#faq").getByText(/There is no autostand server/)).toBeVisible();
 
-    await expect(page.getByRole("img", { name: /Illustration of the autostand dashboard/ })).toBeVisible();
+    // The captures are plain <img> in server-rendered HTML, so they are there
+    // with no bundle at all — and so are all three installers.
+    await expect(page.locator('main img[src="/screenshots/01-dashboard.png"]')).toBeVisible();
+    await expect(page.locator("#download").getByRole("link", { name: /^Download for / })).toHaveCount(
+      3,
+    );
   });
 });
 

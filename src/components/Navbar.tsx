@@ -12,6 +12,7 @@ const REPO_URL = "https://github.com/MAECLY/autostand";
 
 /** The in-page sections the navbar links to, in document order. */
 const SECTIONS = [
+  { href: "#download", label: "Download" },
   { href: "#features", label: "Features" },
   { href: "#how-it-works", label: "How it works" },
   { href: "#audit", label: "Audit" },

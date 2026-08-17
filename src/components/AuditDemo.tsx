@@ -98,8 +98,8 @@ interface DemoBullet {
  */
 const BULLETS: readonly DemoBullet[] = [
   {
-    bullet: "Implemented the LlmAdapter trait for all five providers",
-    evidence: "a3f19c2 — feat(adapters/llm): implement 5 providers",
+    bullet: "Implemented the LlmAdapter trait for all six providers",
+    evidence: "a3f19c2 — feat(adapters/llm): implement 6 providers",
     classification: "commit",
   },
   {
@@ -179,9 +179,7 @@ export function AuditDemo({ id = "audit", className }: AuditDemoProps) {
           <CardHeader className="flex-row flex-wrap items-start justify-between gap-3 px-4 py-5">
             <div className="flex flex-col gap-1.5">
               <CardTitle className="font-mono text-base">2026-08-03.md</CardTitle>
-              <CardDescription>
-                AUTO block for MacStudio-de-Miguel · window Aug 01–02
-              </CardDescription>
+              <CardDescription>AUTO block for mbp-miguel · window Aug 01–02</CardDescription>
             </div>
             <Badge variant="secondary">Example data</Badge>
           </CardHeader>

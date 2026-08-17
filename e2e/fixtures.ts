@@ -25,7 +25,7 @@ export const RETIRED_BASE_PATH = "/autostand";
 export const THEME_STORAGE_KEY = "autostand-theme";
 
 /** Every in-page target the navbar links to, in document order. */
-export const SECTION_IDS = ["features", "how-it-works", "audit", "faq"] as const;
+export const SECTION_IDS = ["download", "features", "how-it-works", "audit", "faq"] as const;
 
 /**
  * `scroll-pt-18` on `<html>` in src/app/layout.tsx: 18 × 0.25rem = 72px, chosen

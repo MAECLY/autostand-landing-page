@@ -75,7 +75,29 @@ test("loads the page without a single failed request", async ({ page }) => {
 
 test("every image resolves to a real image", async ({ page }) => {
   await gotoLanding(page);
+  // Every capture below the hero is `loading="lazy"`, so it has no bytes and a
+  // naturalWidth of 0 until it comes near the viewport. Decoding is the check
+  // this test exists for, so the page has to be read from top to bottom first —
+  // `networkidle` on its own would measure images that were never asked for.
+  await page.evaluate(async () => {
+    for (let offset = 0; offset < document.body.scrollHeight; offset += window.innerHeight) {
+      window.scrollTo({ top: offset, behavior: "instant" });
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+  });
   await page.waitForLoadState("networkidle");
+  await expect
+    .poll(
+      () =>
+        page
+          .locator("img")
+          .evaluateAll((elements) =>
+            elements.every((element) => (element as HTMLImageElement).naturalWidth > 0),
+          ),
+      { message: "some image never decoded" },
+    )
+    .toBe(true);
 
   const images = await page.locator("img").evaluateAll((elements) =>
     elements.map((element) => {

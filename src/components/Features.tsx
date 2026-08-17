@@ -10,8 +10,10 @@
 import type { ComponentType } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@autostand/ui/components/card";
-import { AuditPhantomIcon, HostIcon } from "@autostand/ui/icons";
-import { Cpu, GitBranch, Laptop, ShieldCheck } from "lucide-react";
+import { HostIcon } from "@autostand/ui/icons";
+import { Cpu, Gauge, GitBranch, Route, SquareTerminal } from "lucide-react";
+
+import { Screenshot } from "@/components/Screenshot";
 
 interface Feature {
   /**
@@ -26,38 +28,36 @@ interface Feature {
 const FEATURES: readonly Feature[] = [
   {
     Icon: GitBranch,
-    title: "Eight sources, one timeline",
-    body: "Local git is authoritative and always on. On top of it autostand reads GitHub through the gh CLI, plus Claude Code, the remember plugin, opencode, Codex, Gemini CLI and Grok CLI. Every source is read-only.",
+    title: "Eight sources, all read-only",
+    body: "Local git is authoritative and always on. On top of it autostand reads GitHub through the gh CLI, plus Claude Code, Remember, OpenCode, Codex, Gemini CLI and Grok CLI sessions. Every one of them is opened for reading; the only files autostand writes are your standup and its own state.",
   },
   {
     Icon: Cpu,
-    title: "Five providers, one guarantee",
+    title: "Six providers, one of them built in",
     // "takes over", not "runs on every compile": autostand_core::pipeline::render
     // only computes the deterministic body when the model body is missing or
     // fails auto_valid.
-    body: "Claude, Ollama, OpenAI/Codex, Gemini and Grok can each write the prose, CLI first and API as the fallback. A deterministic renderer is built in and takes over when no model answers, so a compile still produces a standup.",
+    body: "Claude, Ollama, OpenAI/Codex, Gemini and Grok each run their own CLI first and that vendor's API second. The sixth ships with the app: a curated GGUF model, downloaded only when you ask for it and run through a process-isolated llama.cpp sidecar that opens no listening socket. A deterministic renderer sits under all six.",
+  },
+  {
+    Icon: Gauge,
+    title: "Real quota, from the logins you already have",
+    body: "Usage probes for nine providers read the credential each vendor's own tool already wrote — Claude, Codex, Cursor, Copilot, Devin, Grok, OpenCode, OpenRouter and Z.ai. Credits, dollar balances and “N searches left” are reported as themselves instead of being flattened into a percentage, and a value nobody reported reads No data, never 0%.",
+  },
+  {
+    Icon: Route,
+    title: "Failover that only skips a measured dead end",
+    body: "A provider is passed over when its own reading says exhausted, rate limited or sign-in required — never because its quota is simply unknown. A burn-rate projection answers what a bare percentage cannot: 40% left is comfortable four hours into a five-hour window and alarming ten minutes in.",
   },
   {
     Icon: HostIcon,
     title: "One AUTO block per machine",
-    body: "Each host owns its own AUTO block inside the day's file, so a laptop and a desktop never overwrite each other. Your MANUAL notes live in their own region and autostand never rewrites them.",
+    body: "Each host owns its own AUTO block inside the day's file, so a laptop and a desktop never overwrite each other. git owns what was already committed, so notes that restate it are scrubbed, and a bullet the new render missed is put back — accumulate adds, it never deletes. Your MANUAL notes are never rewritten.",
   },
   {
-    Icon: ShieldCheck,
-    title: "No backdating",
-    body: "git owns what was committed, so notes that restate it get scrubbed. Work you already reported is not filed twice. Bullets from the previous render are re-injected only when the new one misses them.",
-  },
-  {
-    Icon: AuditPhantomIcon,
-    title: "Every bullet is traceable",
-    // The sidecar is NOT next to the standup: docs/specs/audit.md pins it to
-    // <state_dir>/audit/<F>-<HOST>.json, 0600, never committed.
-    body: "Each render writes an audit sidecar into autostand's own state directory, never into your dailies repo. It classifies each bullet as commit, github, review, note, phantom or unverified. A phantom claims work with no matching source — you see it before your team does.",
-  },
-  {
-    Icon: Laptop,
-    title: "Local-first desktop",
-    body: "One Rust core in a Tauri v2 window on Windows, macOS and Linux. No account, no cloud, no telemetry. The only thing that leaves your machine is the commit autostand pushes to your own dailies repo.",
+    Icon: SquareTerminal,
+    title: "Every process visible, never its arguments",
+    body: "git, gh, the provider CLIs, the local sidecar, keychain reads and scheduler probes all go through one spawner and report into the Terminal panel. What they are never allowed to report is their argv, which carries repository paths and branch names.",
   },
 ];
 
@@ -88,6 +88,58 @@ export function Features() {
             </li>
           ))}
         </ul>
+
+        {/* The three captures below carry the claims a card can only assert: the
+            usage rail is the one screen no competitor's marketing page can fake,
+            the Local AI panel is what "no account required" looks like, and the
+            audit screen is where provenance stops being a promise. */}
+        <div className="mt-20">
+          <h3 className="text-2xl font-bold tracking-tight">
+            The quota you actually have left
+          </h3>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
+            Settings &rarr; Providers reads the logins already on your machine and prints what each
+            vendor reports: the plan, the window, how much is left and whether you are ahead of or
+            behind pace. Nothing is inferred, nothing is written back, and the same reading drives
+            the badge in the status bar and the order the failover chain is walked in.
+          </p>
+          <Screenshot
+            className="mt-8"
+            src="/screenshots/02-providers.png"
+            alt="Settings → Providers with the Usage & availability rail populated. Claude, on a Max 20x plan, reads Available with 66% left of a five-hour session and 29% left of the week, marked ahead of pace and on track. Openai, on Pro 20x, reads Low usage with 12% of the session left, a “Runs out before reset” warning, and 821 credits left."
+            caption="Provider-reported values only. Percentages where the vendor reports a window, credits where it reports credits."
+          />
+        </div>
+
+        <div className="mt-20 grid gap-12 lg:grid-cols-2">
+          <div>
+            <h3 className="text-2xl font-bold tracking-tight">Usable with no account at all</h3>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              The sixth provider is not a vendor. Settings &rarr; Local AI downloads a curated GGUF
+              model on request and runs it through an isolated llama.cpp sidecar that ships inside
+              every bundle. No sign-in, no key, no Ollama, no Homebrew.
+            </p>
+            <Screenshot
+              className="mt-8"
+              src="/screenshots/05-local-ai.png"
+              alt="Settings → Local AI showing the Built-in local AI panel: download and select a private GGUF model for offline provider fallback, with its model catalog loading."
+            />
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-bold tracking-tight">A sidecar for every render</h3>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              Each compile writes a provenance record into autostand&apos;s own state directory —
+              one per host, never into your dailies repo. It keeps the window, the render mode, the
+              provider and model, and every commit and note that went in.
+            </p>
+            <Screenshot
+              className="mt-8"
+              src="/screenshots/04-audit.png"
+              alt="The Audit screen for Monday, August 3 2026: a sidecar per host — mbp-miguel rendered by an LLM, linux-lab rendered deterministically — over the file 2026-08-03.md, with its window, render mode, provider, model and inputs hash, the commits behind it, and a legend for the six bullet classifications."
+            />
+          </div>
+        </div>
       </div>
     </section>
   );

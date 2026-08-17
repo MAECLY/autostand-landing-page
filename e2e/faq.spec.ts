@@ -10,9 +10,9 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import { faqAccordion, gotoLanding, hydrated } from "./fixtures";
 
-const FIRST_QUESTION = "Which AI providers can write my standup?";
-const SECOND_QUESTION = "Do I need a subscription or an API key?";
-const SECOND_ANSWER = /One of the two, not both/;
+const FIRST_QUESTION = "Does anything I write get sent to a server?";
+const SECOND_QUESTION = "Do I need a paid AI account?";
+const SECOND_ANSWER = /A local provider ships inside every bundle/;
 
 const trigger = (page: Page, question: string): Locator =>
   page.locator("#faq").getByRole("button", { name: question });
@@ -88,7 +88,7 @@ test("every question toggles independently", async ({ page }) => {
   const triggers = page.locator("#faq button[aria-expanded]");
   // One per entry in ENTRIES (Faq.tsx). A dropped question is a content
   // regression worth failing on.
-  await expect(triggers).toHaveCount(8);
+  await expect(triggers).toHaveCount(9);
 
   const count = await triggers.count();
   for (let index = 0; index < count; index += 1) {

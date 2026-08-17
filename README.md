@@ -19,7 +19,7 @@ visually.
 
 | Piece | What it is |
 |---|---|
-| Next.js 15, App Router | every route is statically prerendered (`○ Static` in the build output) |
+| Next.js 15, App Router | every route is statically prerendered (`○ Static` in the build output), and `output: "export"` writes the finished HTML to `out/` — there is no server build, so `next start` does not apply |
 | React 19 | server components by default; only two components are client components |
 | TypeScript strict | plus `noUnusedLocals` / `noUnusedParameters` |
 | Tailwind v4 via `@tailwindcss/postcss` | no `tailwind.config.js`; the theme is the `@theme` block inside `@autostand/ui` |
@@ -30,8 +30,8 @@ visually.
 ```bash
 pnpm install     # see "The private dependency" below before the first run
 pnpm dev         # next dev      — http://localhost:3000
-pnpm build       # next build    — writes .next/
-pnpm start       # serve the production build locally
+pnpm build       # next build    — exports the finished site into out/
+pnpm start       # serve out/ on http://localhost:3000 (scripts/serve-static.mjs)
 pnpm lint        # eslint
 pnpm typecheck   # tsc --noEmit
 pnpm test:e2e    # playwright
