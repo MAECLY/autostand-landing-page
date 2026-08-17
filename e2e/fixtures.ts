@@ -196,7 +196,11 @@ export async function documentWidths(page: Page): Promise<DocumentWidths> {
         const box = element.getBoundingClientRect();
         const id = element.id === "" ? "" : `#${element.id}`;
         const classes = element.className.toString().trim().slice(0, 60);
-        return `<${element.tagName.toLowerCase()}${id} class="${classes}"> right=${Math.round(box.right)}`;
+        // width alongside right: an element pushed sideways and one that is
+        // simply too wide are different bugs, and the text says which node it is
+        // without having to count siblings.
+        const text = (element.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 40);
+        return `<${element.tagName.toLowerCase()}${id} class="${classes}"> x=${Math.round(box.x)} w=${Math.round(box.width)} right=${Math.round(box.right)} "${text}"`;
       })
       .reverse();
 
