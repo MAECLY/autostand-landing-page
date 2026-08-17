@@ -1,0 +1,254 @@
+<!doctype html>
+<!--
+  Source artwork for the Open Graph card. Rendered to public/brand/logo-og.png
+  by scripts/make-og-image.mjs — never edited as a PNG.
+
+  It is a page rather than a Pillow script so the card is built from the same
+  fonts, palette and product capture the site itself uses: a card drawn from a
+  second set of values drifts from the thing it advertises.
+
+  Every asset is referenced relative to this file so it renders from file://
+  with no server and no network.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: "Inter";
+        font-weight: 400;
+        src: url("../node_modules/@autostand/ui/fonts/inter-400.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-weight: 600;
+        src: url("../node_modules/@autostand/ui/fonts/inter-600.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-weight: 700;
+        src: url("../node_modules/@autostand/ui/fonts/inter-700.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        font-weight: 500;
+        src: url("../node_modules/@autostand/ui/fonts/jetbrains-mono-500.woff2") format("woff2");
+      }
+
+      :root {
+        --slate-50: #f8fafc;
+        --slate-300: #cbd5e1;
+        --slate-400: #94a3b8;
+        --slate-700: #334155;
+        --slate-800: #1e293b;
+        --slate-900: #0f172a;
+        --slate-950: #020617;
+        --blue-400: #60a5fa;
+        --blue-600: #2563eb;
+        --green-400: #4ade80;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        position: relative;
+        font-family: "Inter", system-ui, sans-serif;
+        color: var(--slate-50);
+        background:
+          radial-gradient(900px 620px at 8% -10%, rgba(37, 99, 235, 0.34), transparent 62%),
+          linear-gradient(135deg, var(--slate-950), var(--slate-900));
+      }
+
+      /* A faint grid, on the same 24px rhythm the app's own surfaces use. It
+         gives the flat background a material without competing with the type. */
+      body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(148, 163, 184, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.055) 1px, transparent 1px);
+        background-size: 24px 24px;
+        mask-image: linear-gradient(105deg, #000 0%, transparent 68%);
+      }
+
+      .card {
+        position: relative;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 620px 1fr;
+        align-items: center;
+      }
+
+      .left {
+        padding: 0 0 0 72px;
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+      }
+
+      .lockup {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .mark {
+        width: 76px;
+        height: 76px;
+        border-radius: 20px;
+        background: var(--blue-600);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 12px 32px -10px rgba(37, 99, 235, 0.85);
+      }
+
+      .wordmark {
+        font-size: 62px;
+        font-weight: 700;
+        letter-spacing: -0.032em;
+      }
+
+      .tagline {
+        font-size: 40px;
+        font-weight: 600;
+        line-height: 1.16;
+        letter-spacing: -0.022em;
+        color: var(--slate-50);
+        max-width: 540px;
+      }
+
+      .sub {
+        font-size: 22px;
+        line-height: 1.4;
+        color: var(--slate-400);
+        max-width: 520px;
+      }
+
+      .chips {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .chip {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        font-size: 17px;
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--slate-700);
+        background: rgba(15, 23, 42, 0.72);
+        color: var(--slate-300);
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--green-400);
+      }
+
+      .domain {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        font-size: 19px;
+        color: var(--blue-400);
+        padding-top: 4px;
+      }
+
+      /* The capture bleeds off the right edge on purpose: a whole window shrunk
+         to fit would be unreadable at feed size, while a cropped one still reads
+         as a running application. */
+      .shot {
+        position: absolute;
+        top: 62px;
+        left: 656px;
+        width: 760px;
+        /* Taller than the space left below it, so the window runs off the
+           bottom edge as well as the right rather than floating in a band of
+           empty background. */
+        height: 568px;
+        border-radius: 16px 16px 0 0;
+        overflow: hidden;
+        border: 1px solid var(--slate-700);
+        border-bottom: none;
+        box-shadow: 0 40px 90px -30px rgba(2, 6, 23, 0.95);
+      }
+
+      .titlebar {
+        height: 34px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 14px;
+        background: var(--slate-800);
+        border-bottom: 1px solid var(--slate-700);
+      }
+
+      .titlebar span {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: var(--slate-700);
+      }
+
+      .shot img {
+        display: block;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="left">
+        <div class="lockup">
+          <div class="mark">
+            <!-- The brand mark, drawn rather than linked: one file to render. -->
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M4.5 12.6 9.4 17.5 19.5 6.5"
+                stroke="#ffffff"
+                stroke-width="3.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <div class="wordmark">autostand</div>
+        </div>
+
+        <div class="tagline">Your standup, written from what you actually did.</div>
+
+        <div class="sub">
+          Reads your commits, pull requests and notes, then files a structured standup
+          every working day. Nothing leaves your machine unless you send it.
+        </div>
+
+        <div class="chips">
+          <div class="chip"><span class="dot"></span>Local-first</div>
+          <div class="chip">6 providers</div>
+          <div class="chip">8 sources</div>
+          <div class="chip">MIT</div>
+        </div>
+
+        <div class="domain">autostand.maecly.com</div>
+      </div>
+    </div>
+
+    <div class="shot">
+      <div class="titlebar"><span></span><span></span><span></span></div>
+      <img src="../public/screenshots/06-dashboard-dark.png" alt="" />
+    </div>
+  </body>
+</html>
