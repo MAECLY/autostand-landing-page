@@ -117,6 +117,40 @@ There is **no base path**. An earlier version of this site was served from
 every asset is referenced as `/brand/…` and any surviving `/autostand/` prefix or
 `BASE_URL` handling is a bug, not configuration.
 
+## The share card
+
+What Facebook, LinkedIn, Slack and X show when someone posts a link to the site
+— the *link preview*, built from Open Graph (`og:`) and Twitter Card (`twitter:`)
+meta tags. `src/app/layout.tsx` owns the tags; the image is
+`public/brand/logo-og.png`, 1200×630.
+
+The image is generated, not drawn:
+
+```bash
+pnpm og:image        # scripts/og-card.html -> public/brand/logo-og.png
+```
+
+`scripts/og-card.html` is the artwork, built from the same fonts, palette and
+dashboard capture the site itself uses, so the card cannot drift from the product
+it advertises. `scripts/make-og-image.mjs` renders it at exactly 1200×630 and
+re-reads the PNG header to prove it. Commit the PNG it writes.
+
+Two things to know when you change it:
+
+- **Bump the `?v=` on `SOCIAL_IMAGE` in `src/app/layout.tsx`.** Every platform
+  caches the artwork it fetched the first time the link was posted, keyed by URL,
+  and none of them expose a purge you can automate. A new query string is a URL
+  they have never seen.
+- **Facebook and LinkedIn also cache the page.** Re-scrape it by hand after a
+  change: <https://developers.facebook.com/tools/debug/> and
+  <https://www.linkedin.com/post-inspector/>. X has no public equivalent any
+  more; its cache expires on its own within about a week.
+
+`e2e/social-card.spec.ts` checks the whole chain — the tags are present, both
+vocabularies name the same image, and the file that URL serves really is a PNG of
+the declared size. A broken card is invisible from inside the site, so it is
+worth a test.
+
 ## Deploying to Vercel
 
 Target: **https://autostand.maecly.com**. The build is `next build`; every route

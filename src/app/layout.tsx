@@ -15,8 +15,24 @@ const AUTHOR = {
 } as const;
 const PUBLISHER = "MAECLY";
 
-/** The 1200×630 card the OG tags already point at; shared with the Twitter card. */
-const SOCIAL_IMAGE = { url: "/brand/logo-og.png", width: 1200, height: 630, alt: "autostand" };
+/**
+ * The 1200×630 card, shared by the Open Graph and Twitter tags. Built by
+ * `pnpm og:image` from `scripts/og-card.html`.
+ *
+ * The `?v=` is not cache-busting for readers — it is for the scrapers. Facebook,
+ * LinkedIn and X each cache what they fetched the first time anyone posted the
+ * link, keyed by URL, for days to weeks, and there is no way to purge that
+ * without logging into each one. Bumping the number the card is redrawn makes it
+ * a URL they have never seen, so the next share shows the new artwork instead of
+ * whatever they scraped first.
+ */
+const SOCIAL_IMAGE = {
+  url: "/brand/logo-og.png?v=2",
+  width: 1200,
+  height: 630,
+  type: "image/png",
+  alt: "autostand — your standup, written from what you actually did. The dashboard beside the wordmark, showing a day's standup composed of AUTO and MANUAL blocks.",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -52,6 +68,9 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "autostand",
     type: "website",
+    // Facebook defaults an undeclared locale to en_US anyway; declaring it stops
+    // the Sharing Debugger reporting it as an inferred value.
+    locale: "en_US",
     images: [SOCIAL_IMAGE],
   },
   // The card has to declare its own image. Twitter and every scraper that
