@@ -32,10 +32,10 @@ test("does not scroll sideways at 390px", async ({ page }) => {
   await gotoLanding(page);
   await page.waitForLoadState("networkidle");
 
-  const { scrollWidth, clientWidth } = await documentWidths(page);
+  const { scrollWidth, clientWidth, overflowing } = await documentWidths(page);
   expect(
     scrollWidth,
-    `the document is ${scrollWidth}px wide inside a ${clientWidth}px viewport`,
+    `the document is ${scrollWidth}px wide inside a ${clientWidth}px viewport.\nPast the right edge:\n${overflowing.join("\n") || "(nothing — the overflow is a margin or a transform, not a box)"}`,
   ).toBeLessThanOrEqual(clientWidth);
 });
 
@@ -171,10 +171,10 @@ for (const width of [320, 360, 414]) {
     await page.locator("#faq").scrollIntoViewIfNeeded();
     await page.waitForLoadState("networkidle");
 
-    const { scrollWidth, clientWidth } = await documentWidths(page);
+    const { scrollWidth, clientWidth, overflowing } = await documentWidths(page);
     expect(
       scrollWidth,
-      `the document is ${scrollWidth}px wide inside a ${clientWidth}px viewport`,
+      `the document is ${scrollWidth}px wide inside a ${clientWidth}px viewport.\nPast the right edge:\n${overflowing.join("\n") || "(nothing — the overflow is a margin or a transform, not a box)"}`,
     ).toBeLessThanOrEqual(clientWidth);
   });
 }

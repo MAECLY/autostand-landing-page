@@ -158,6 +158,11 @@ export async function scrollToBottom(page: Page): Promise<void> {
 export interface DocumentWidths {
   readonly scrollWidth: number;
   readonly clientWidth: number;
+  /**
+   * The elements reaching past the right edge, innermost first — everything a
+   * sideways-scroll failure needs in order to be fixed. Empty when nothing does.
+   */
+  readonly overflowing: readonly string[];
 }
 
 /**
@@ -168,8 +173,37 @@ export interface DocumentWidths {
  * (macOS) both give the same verdict.
  */
 export async function documentWidths(page: Page): Promise<DocumentWidths> {
-  return page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
-  }));
+  return page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+
+    // A "the page is 9px too wide" failure is unfixable from CI without knowing
+    // which element is the 9px, and the answer differs by platform — the one
+    // that overflows on a Linux runner may fit locally. So name it here, where
+    // the failing layout still exists, rather than reasoning about it later.
+    const overflowing = Array.from(document.querySelectorAll("body *"))
+      .filter((element) => {
+        const box = element.getBoundingClientRect();
+        if (box.width === 0 || box.right <= clientWidth + 0.5) return false;
+        // Content inside its own horizontal scroller is meant to be wider than
+        // the page; it is the scroller that must fit, and it is checked on its
+        // own turn through this same filter.
+        for (let node = element.parentElement; node; node = node.parentElement) {
+          if (getComputedStyle(node).overflowX !== "visible") return false;
+        }
+        return true;
+      })
+      .map((element) => {
+        const box = element.getBoundingClientRect();
+        const id = element.id === "" ? "" : `#${element.id}`;
+        const classes = element.className.toString().trim().slice(0, 60);
+        return `<${element.tagName.toLowerCase()}${id} class="${classes}"> right=${Math.round(box.right)}`;
+      })
+      .reverse();
+
+    return {
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth,
+      overflowing,
+    };
+  });
 }
