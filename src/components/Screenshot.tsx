@@ -67,13 +67,17 @@ export function Screenshot({
           so the boundary is legible even where both are near-white. */}
       <div className="overflow-hidden rounded-xl bg-surface shadow-[0_1px_2px_rgba(11,18,32,0.04),0_12px_28px_-8px_rgba(11,18,32,0.18)] ring-1 ring-border">
         <div className="flex items-center gap-2 border-b border-border bg-muted/60 px-3 py-2">
-          <span aria-hidden className="flex gap-1.5">
+          <span aria-hidden className="flex shrink-0 gap-1.5">
             <span className="size-2.5 rounded-full bg-border-strong/70" />
             <span className="size-2.5 rounded-full bg-border-strong/50" />
             <span className="size-2.5 rounded-full bg-border-strong/30" />
           </span>
+          {/* min-w-0 flex-1: the title is one nowrap monospace string, so
+              without it the bar's minimum width is however wide that string
+              renders — which depends on which mono face the reader's platform
+              falls back to, and pushed the page sideways at 320px on Linux. */}
           {windowTitle === undefined ? null : (
-            <span className="truncate font-mono text-[11px] text-muted-foreground">
+            <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">
               {windowTitle}
             </span>
           )}
