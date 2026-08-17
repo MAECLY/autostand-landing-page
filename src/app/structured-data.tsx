@@ -17,6 +17,10 @@
 
 const REPO_URL = "https://github.com/MAECLY/autostand";
 const ORG_URL = "https://github.com/MAECLY";
+
+/** The person who wrote it. Distinct from the organisation that publishes it. */
+const AUTHOR_NAME = "Miguel Angel Esparza Calero";
+const AUTHOR_URL = "https://www.maecly.com/about";
 const RELEASE_URL = "https://github.com/MAECLY/autostand/releases/tag/v1.0.0";
 const CHANGELOG_URL = "https://github.com/MAECLY/autostand/blob/main/CHANGELOG.md";
 /** SPDX's own page for MIT: the URL a consumer can resolve, not our copy of it. */
@@ -133,6 +137,7 @@ export interface StructuredDataProps {
 function buildGraph({ siteUrl, description }: StructuredDataProps) {
   const organizationId = `${siteUrl}/#organization`;
   const websiteId = `${siteUrl}/#website`;
+  const personId = `${siteUrl}/#author`;
 
   return {
     "@context": "https://schema.org",
@@ -142,6 +147,12 @@ function buildGraph({ siteUrl, description }: StructuredDataProps) {
         "@id": organizationId,
         name: "MAECLY",
         url: ORG_URL,
+      },
+      {
+        "@type": "Person",
+        "@id": personId,
+        name: AUTHOR_NAME,
+        url: AUTHOR_URL,
       },
       {
         "@type": "WebSite",
@@ -181,7 +192,7 @@ function buildGraph({ siteUrl, description }: StructuredDataProps) {
           width: 1440,
           height: 900,
         })),
-        author: { "@id": organizationId },
+        author: { "@id": personId },
         publisher: { "@id": organizationId },
         sameAs: [REPO_URL],
       },

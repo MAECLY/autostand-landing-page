@@ -71,9 +71,20 @@ export function Footer({ className }: FooterProps) {
           </nav>
         </div>
 
-        <p className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">
-          &copy; {year} autostand contributors. MIT licensed. Built in the open on GitHub.
-        </p>
+        <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            &copy; {year} Miguel Angel Esparza Calero. MIT licensed. Built in the open on GitHub.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Built by{" "}
+            <a
+              href="https://www.maecly.com/about"
+              className="rounded-sm font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              Miguel Esparza
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );

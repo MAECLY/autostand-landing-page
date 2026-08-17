@@ -8,8 +8,12 @@ const TITLE = "autostand — Automate your standup. Know what you did.";
 const DESCRIPTION =
   "autostand gathers your commits, pull requests and notes from eight sources, renders them, writes them into your dated standup file and pushes it. Local-first, open source, MIT licensed.";
 
-/** The organisation behind the app, and the account both repos live under. */
-const AUTHOR = { name: "MAECLY", url: "https://github.com/MAECLY" } as const;
+/** Who wrote it, and who publishes it — deliberately two different things. */
+const AUTHOR = {
+  name: "Miguel Angel Esparza Calero",
+  url: "https://www.maecly.com/about",
+} as const;
+const PUBLISHER = "MAECLY";
 
 /** The 1200×630 card the OG tags already point at; shared with the Twitter card. */
 const SOCIAL_IMAGE = { url: "/brand/logo-og.png", width: 1200, height: 630, alt: "autostand" };
@@ -40,7 +44,7 @@ export const metadata: Metadata = {
   ],
   authors: [AUTHOR],
   creator: AUTHOR.name,
-  publisher: AUTHOR.name,
+  publisher: PUBLISHER,
   icons: { icon: [{ url: "/brand/logo-favicon.svg", type: "image/svg+xml" }] },
   openGraph: {
     title: TITLE,
