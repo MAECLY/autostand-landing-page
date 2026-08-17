@@ -67,6 +67,7 @@ export function Hero() {
           className="mt-14 w-full text-center"
           priority
           src="/screenshots/01-dashboard.png"
+          window="autostand — Dashboard"
           alt="The autostand dashboard, headed “Today's work — Aug 3, 2026” and filed in 2026-08-04.md, the next business day's standup. Two AUTO blocks sit under it, one per machine — mbp-miguel and linux-lab — above a MANUAL block badged “never overwritten”."
           caption="Monday's work, filed into the next business day's standup. One AUTO block per machine; the MANUAL block is yours."
         />

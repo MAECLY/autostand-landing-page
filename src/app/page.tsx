@@ -56,7 +56,12 @@ export default function Home() {
             strip separates it from the two background-coloured sections around
             it. */}
         <HowItWorks className="border-y border-border bg-surface" />
-        <AuditDemo />
+        {/* The one dark section on the page, and it is not a stripe for rhythm's
+            sake: the tokens in @autostand/ui carry a dark set, so `dark` here
+            renders the provenance table in the product's own dark theme, with the
+            same audit colours the app uses to classify a bullet. The break in the
+            page is the product showing through. */}
+        <AuditDemo className="dark border-y border-border bg-base" />
         <Faq className="border-t border-border" />
       </main>
 

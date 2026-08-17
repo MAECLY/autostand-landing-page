@@ -44,12 +44,40 @@ export interface ScreenshotProps {
   readonly priority?: boolean;
   /** Extra classes for the outer figure, so the placing section owns its margins. */
   readonly className?: string;
+  /**
+   * Title-bar text. This is the app's own window, so name what the window is
+   * showing — the screen, or the file it has open — never "screenshot".
+   */
+  readonly window?: string;
 }
 
-export function Screenshot({ src, alt, caption, priority = false, className }: ScreenshotProps) {
+export function Screenshot({
+  src,
+  alt,
+  caption,
+  priority = false,
+  className,
+  window: windowTitle,
+}: ScreenshotProps) {
   return (
     <figure className={cn("flex flex-col gap-3", className)}>
-      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
+      {/* Chrome, not decoration: without it a capture of a mostly-white app reads
+          as a diagram in the page rather than as a window belonging to a program
+          you can install. The ring plus the offset shadow lift it off the section
+          so the boundary is legible even where both are near-white. */}
+      <div className="overflow-hidden rounded-xl bg-surface shadow-[0_1px_2px_rgba(11,18,32,0.04),0_12px_28px_-8px_rgba(11,18,32,0.18)] ring-1 ring-border">
+        <div className="flex items-center gap-2 border-b border-border bg-muted/60 px-3 py-2">
+          <span aria-hidden className="flex gap-1.5">
+            <span className="size-2.5 rounded-full bg-border-strong/70" />
+            <span className="size-2.5 rounded-full bg-border-strong/50" />
+            <span className="size-2.5 rounded-full bg-border-strong/30" />
+          </span>
+          {windowTitle === undefined ? null : (
+            <span className="truncate font-mono text-[11px] text-muted-foreground">
+              {windowTitle}
+            </span>
+          )}
+        </div>
         <img
           src={src}
           alt={alt}

@@ -11,7 +11,16 @@ import type { ComponentType } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@autostand/ui/components/card";
 import { HostIcon } from "@autostand/ui/icons";
-import { Cpu, Gauge, GitBranch, Route, SquareTerminal } from "lucide-react";
+import {
+  CalendarClock,
+  CalendarDays,
+  Cpu,
+  Filter,
+  Gauge,
+  GitBranch,
+  Route,
+  SquareTerminal,
+} from "lucide-react";
 
 import { Screenshot } from "@/components/Screenshot";
 
@@ -53,6 +62,22 @@ const FEATURES: readonly Feature[] = [
     Icon: HostIcon,
     title: "One AUTO block per machine",
     body: "Each host owns its own AUTO block inside the day's file, so a laptop and a desktop never overwrite each other. git owns what was already committed, so notes that restate it are scrubbed, and a bullet the new render missed is put back — accumulate adds, it never deletes. Your MANUAL notes are never rewritten.",
+  },
+  {
+    Icon: Filter,
+    title: "Your own prompt never comes back as work",
+    // The guard is autostand_core::prompt_echo, applied in PromptCollector::add.
+    body: "autostand drives the same coding CLIs it reads sessions from, and those CLIs log the invocation. Left alone, the render prompt returns on the next run dressed as something you did, and the model is shown its own output format as activity. It is filtered out at the message and at the line, before it can reach a standup.",
+  },
+  {
+    Icon: CalendarClock,
+    title: "Runs on a schedule, and repairs a missed one",
+    body: "Installs a launchd agent, a systemd --user timer or a Task Scheduler job — your OS's own scheduler, not a daemon of ours. A run that never happened is refilled from the git log and the notes still on disk, and a day that already has content is frozen rather than rewritten from partial evidence.",
+  },
+  {
+    Icon: CalendarDays,
+    title: "The day it files under is yours to choose",
+    body: "Today's work can go to tomorrow's standup — the rule the original script used, and the default — or to today's own. Either way weekend work accumulates into Monday's file rather than landing nowhere, and every window starts the day after the last one ended, so nothing is lost or counted twice.",
   },
   {
     Icon: SquareTerminal,
@@ -106,6 +131,7 @@ export function Features() {
           <Screenshot
             className="mt-8"
             src="/screenshots/02-providers.png"
+            window="autostand — Settings › Providers"
             alt="Settings → Providers with the Usage & availability rail populated. Claude, on a Max 20x plan, reads Available with 66% left of a five-hour session and 29% left of the week, marked ahead of pace and on track. Openai, on Pro 20x, reads Low usage with 12% of the session left, a “Runs out before reset” warning, and 821 credits left."
             caption="Provider-reported values only. Percentages where the vendor reports a window, credits where it reports credits."
           />
@@ -122,6 +148,7 @@ export function Features() {
             <Screenshot
               className="mt-8"
               src="/screenshots/05-local-ai.png"
+              window="autostand — Settings › Local AI"
               alt="Settings → Local AI showing the Built-in local AI panel: download and select a private GGUF model for offline provider fallback, with its model catalog loading."
             />
           </div>
@@ -136,6 +163,7 @@ export function Features() {
             <Screenshot
               className="mt-8"
               src="/screenshots/04-audit.png"
+              window="autostand — Audit › 2026-08-03.md"
               alt="The Audit screen for Monday, August 3 2026: a sidecar per host — mbp-miguel rendered by an LLM, linux-lab rendered deterministically — over the file 2026-08-03.md, with its window, render mode, provider, model and inputs hash, the commits behind it, and a legend for the six bullet classifications."
             />
           </div>
