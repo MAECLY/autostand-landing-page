@@ -151,6 +151,17 @@ vocabularies name the same image, and the file that URL serves really is a PNG o
 the declared size. A broken card is invisible from inside the site, so it is
 worth a test.
 
+## Campaign cards
+
+`pnpm promo:cards [outDir]` renders `scripts/promo-cards.mjs` to eleven 1600×900
+PNGs — 16:9, the ratio X and LinkedIn crop to. Same construction as the share
+card: the shipped fonts, the real palette, and real captures where a card shows
+the product, so promotional images cannot drift from what actually ships.
+
+Output goes to `.promo/` by default, which is gitignored — these are campaign
+artifacts, not site assets. Each card makes exactly one claim, and every claim
+is one the README already makes.
+
 ## Deploying to Vercel
 
 Target: **https://autostand.maecly.com**. The build is `next build`; every route

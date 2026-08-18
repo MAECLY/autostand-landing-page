@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
-    "og:image": "node scripts/make-og-image.mjs"
+    "og:image": "node scripts/make-og-image.mjs",
+    "promo:cards": "node scripts/promo-cards.mjs"
   },
   "dependencies": {
     "@autostand/ui": "github:MAECLY/autostand-ui#main",
