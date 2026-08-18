@@ -43,6 +43,15 @@ export const metadata: Metadata = {
   // second hostname (a *.github.io default domain, say) then points every
   // crawler back here instead of competing with itself.
   alternates: { canonical: "/" },
+  // Proves ownership of the domain to Google Search Console, which is what
+  // unlocks the crawl and indexing reports for it. Through Next's `metadata`
+  // rather than a hand-written <meta>, so it sits with every other head tag and
+  // cannot be dropped by a refactor of the layout's JSX.
+  //
+  // Not a secret: it is served in the HTML of every page by design, and it
+  // grants nothing beyond identifying this site to that one Search Console
+  // property. Removing it un-verifies the property.
+  verification: { google: "tX6T86y0oQM8CmWYapjnDT_xsGxHoFTQxPvF0TwCILw" },
   // Search engines stopped ranking on these, but the AI crawlers and the
   // in-page search of a few aggregators still read them. Only terms the page
   // itself is about.

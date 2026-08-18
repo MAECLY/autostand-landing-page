@@ -142,3 +142,17 @@ test("every FAQ answer in the graph is the answer the page renders", async ({ pa
     ).toBe(normalize(question.acceptedAnswer.text));
   }
 });
+
+/**
+ * Search Console verifies ownership by finding this tag. If it disappears the
+ * property is un-verified silently — no build fails, no page looks wrong, and
+ * the crawl reports just stop. Nothing else on the site would notice.
+ */
+test("keeps the Search Console verification tag", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator('meta[name="google-site-verification"]')).toHaveAttribute(
+    "content",
+    "tX6T86y0oQM8CmWYapjnDT_xsGxHoFTQxPvF0TwCILw",
+  );
+});
