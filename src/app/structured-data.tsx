@@ -1,3 +1,5 @@
+import { getLatestRelease, type ReleaseAssets } from "@/lib/release";
+
 /**
  * schema.org markup for the site, emitted as one JSON-LD `@graph`.
  *
@@ -6,7 +8,7 @@
  * a graph is the only form where those links survive.
  *
  * Every value here is a fact that is already true and already stated somewhere
- * a reader can check — the v1.0.0 release, the repository, the licence, the
+ * a reader can check — the published release, the repository, the licence, the
  * screenshots in public/. Structured data that claims more than the page shows
  * is worse than none: Google treats the mismatch as deception and drops the
  * result, so nothing is added here to look good in a search result.
@@ -21,23 +23,18 @@ const ORG_URL = "https://github.com/MAECLY";
 /** The person who wrote it. Distinct from the organisation that publishes it. */
 const AUTHOR_NAME = "Miguel Angel Esparza Calero";
 const AUTHOR_URL = "https://www.maecly.com/about";
-const RELEASE_URL = "https://github.com/MAECLY/autostand/releases/tag/v1.0.0";
 const CHANGELOG_URL = "https://github.com/MAECLY/autostand/blob/main/CHANGELOG.md";
 /** SPDX's own page for MIT: the URL a consumer can resolve, not our copy of it. */
 const LICENSE_URL = "https://opensource.org/licenses/MIT";
 
-const VERSION = "1.0.0";
-
 /**
- * What the release actually runs on, from the bundles that exist:
- * `autostand_1.0.0_aarch64.dmg`, `autostand_1.0.0_x64-setup.exe` and
- * `autostand_1.0.0_amd64.AppImage`. The AppImage is built on ubuntu-22.04, so
+ * What the release actually runs on. The AppImage is built on ubuntu-22.04, so
  * glibc 2.35 is a floor and not a preference.
  */
 const REQUIREMENTS =
   "macOS on Apple Silicon (Intel via Rosetta 2); Windows x64; Linux x86_64 with glibc 2.35 or newer";
 
-/** Straight from the v1.0.0 entry in the product CHANGELOG. Nothing aspirational. */
+/** Straight from the product CHANGELOG. Nothing aspirational. */
 const FEATURES = [
   "Eight read-only activity sources: local git, GitHub via the gh CLI, Claude Code, Remember, OpenCode, Codex, Gemini CLI and Grok CLI",
   "Six render providers — Claude, Ollama, OpenAI/Codex, Gemini, Grok — plus a built-in local model, so the app works with no account at all",
@@ -134,7 +131,7 @@ export interface StructuredDataProps {
   readonly description: string;
 }
 
-function buildGraph({ siteUrl, description }: StructuredDataProps) {
+function buildGraph({ siteUrl, description, release }: StructuredDataProps & { release: ReleaseAssets }) {
   const organizationId = `${siteUrl}/#organization`;
   const websiteId = `${siteUrl}/#website`;
   const personId = `${siteUrl}/#author`;
@@ -174,9 +171,9 @@ function buildGraph({ siteUrl, description }: StructuredDataProps) {
         url: siteUrl,
         applicationCategory: "DeveloperApplication",
         operatingSystem: "macOS, Windows, Linux",
-        softwareVersion: VERSION,
+        softwareVersion: release.version,
         softwareRequirements: REQUIREMENTS,
-        downloadUrl: RELEASE_URL,
+        downloadUrl: release.notesUrl,
         releaseNotes: CHANGELOG_URL,
         license: LICENSE_URL,
         isAccessibleForFree: true,
@@ -237,13 +234,16 @@ function serialize(graph: unknown): string {
  * ever added, `FAQPage` has to move to the page that renders the FAQ — claiming
  * it on a page without the questions is the mismatch this file warns about.
  */
-export function StructuredData(props: StructuredDataProps) {
+export async function StructuredData(props: StructuredDataProps) {
+  // Async for the same reason the download section is: `softwareVersion` is a
+  // claim a crawler indexes, and a stale one is worse than none.
+  const release = await getLatestRelease();
   return (
     <script
       type="application/ld+json"
       // Not user input and not interpolated: a compile-time object run through
       // JSON.stringify and escaped above. Keep it that way.
-      dangerouslySetInnerHTML={{ __html: serialize(buildGraph(props)) }}
+      dangerouslySetInnerHTML={{ __html: serialize(buildGraph({ ...props, release })) }}
     />
   );
 }

@@ -3,7 +3,9 @@ import { cn } from "@autostand/ui/lib/utils";
 const REPO_URL = "https://github.com/MAECLY/autostand";
 
 const LINKS = [
-  { href: `${REPO_URL}/releases/latest`, label: "Download 1.0.0" },
+  // No version in the label: this list is a module constant, and a number
+  // here would be the one place that still needs editing by hand.
+  { href: `${REPO_URL}/releases/latest`, label: "Download" },
   { href: REPO_URL, label: "Repository" },
   { href: `${REPO_URL}/tree/main/docs`, label: "Documentation" },
   { href: `${REPO_URL}/blob/main/CHANGELOG.md`, label: "Changelog" },

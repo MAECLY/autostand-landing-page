@@ -22,21 +22,22 @@ import { Badge } from "@autostand/ui/components/badge";
 import { buttonVariants } from "@autostand/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@autostand/ui/components/card";
 import { cn } from "@autostand/ui/lib/utils";
+
+import { getLatestRelease, type ReleaseAssets } from "@/lib/release";
 import { Download as DownloadIcon, Laptop, Monitor, Terminal } from "lucide-react";
 
 /** Always "latest", never a pinned tag: this link must survive the next release. */
 const RELEASE_URL = "https://github.com/MAECLY/autostand/releases/latest";
-const RELEASE_NOTES_URL = "https://github.com/MAECLY/autostand/releases/tag/v1.0.0";
 
 type PlatformId = "macos" | "windows" | "linux";
 
 interface Platform {
   readonly id: PlatformId;
+  /** Which asset on the release this card offers. */
+  readonly asset: keyof Pick<ReleaseAssets, "macos" | "windows" | "linux">;
   /** Decorative glyph. lucide has no brand marks, so these are plain devices. */
   readonly Icon: ComponentType<{ className?: string; "aria-hidden"?: "true" }>;
   readonly name: string;
-  /** The exact asset name on the release, so you know what you just downloaded. */
-  readonly file: string;
   /** What the machine has to be. One sentence. */
   readonly requirement: string;
   /** The thing that goes wrong, named before it happens. */
@@ -71,7 +72,7 @@ const PLATFORMS: readonly Platform[] = [
     id: "macos",
     Icon: Laptop,
     name: "macOS",
-    file: "autostand_1.0.0_aarch64.dmg",
+    asset: "macos",
     requirement: "Apple Silicon. Intel Macs run the same build through Rosetta 2.",
     caveatTitle: "macOS will say the app is damaged. It is not.",
     caveat: (
@@ -95,7 +96,7 @@ const PLATFORMS: readonly Platform[] = [
     id: "windows",
     Icon: Monitor,
     name: "Windows",
-    file: "autostand_1.0.0_x64-setup.exe",
+    asset: "windows",
     requirement: "64-bit Windows. An NSIS installer, not a portable executable.",
     caveatTitle: "SmartScreen will interrupt the installer.",
     caveat: (
@@ -111,7 +112,7 @@ const PLATFORMS: readonly Platform[] = [
     id: "linux",
     Icon: Terminal,
     name: "Linux",
-    file: "autostand_1.0.0_amd64.AppImage",
+    asset: "linux",
     requirement: "x86_64 with glibc 2.35 or newer. Mark it executable and run it.",
     caveatTitle: "Not every distribution, and not ARM.",
     caveat: (
@@ -162,8 +163,13 @@ export interface DownloadProps {
   className?: string;
 }
 
-export function Download({ id = "download", className }: DownloadProps) {
+/**
+ * An async server component: the release is read once, during `next build`, and
+ * baked into the exported HTML. Nothing here runs in a visitor's browser.
+ */
+export async function Download({ id = "download", className }: DownloadProps) {
   const headingId = `${id}-title`;
+  const release = await getLatestRelease();
 
   return (
     <section
@@ -180,7 +186,7 @@ export function Download({ id = "download", className }: DownloadProps) {
           Download
         </p>
         <h2 id={headingId} className="mt-6 text-3xl font-bold tracking-tight sm:text-4xl">
-          autostand 1.0.0
+          autostand {release.version}
         </h2>
         <p className="mt-4 max-w-3xl text-lg leading-relaxed text-muted-foreground">
           One installer per platform, attached to the GitHub release. Every bundle carries its own
@@ -190,7 +196,7 @@ export function Download({ id = "download", className }: DownloadProps) {
         </p>
 
         <ul className="mt-12 grid gap-6 lg:grid-cols-3">
-          {PLATFORMS.map(({ id: platformId, Icon, name, file, requirement, caveatTitle, caveat }) => (
+          {PLATFORMS.map(({ id: platformId, Icon, name, asset, requirement, caveatTitle, caveat }) => (
             <li key={platformId}>
               <Card className={cn("flex h-full flex-col", DETECTED_CARD_CLASS[platformId])}>
                 <CardHeader className="gap-3 p-6 pb-4">
@@ -201,7 +207,7 @@ export function Download({ id = "download", className }: DownloadProps) {
                     </Badge>
                   </div>
                   <CardTitle>{name}</CardTitle>
-                  <p className="break-words font-mono text-xs text-muted-foreground">{file}</p>
+                  <p className="break-words font-mono text-xs text-muted-foreground">{release[asset]}</p>
                 </CardHeader>
 
                 <CardContent className="flex flex-1 flex-col gap-4 p-6 pt-0">
@@ -230,13 +236,14 @@ export function Download({ id = "download", className }: DownloadProps) {
         </ul>
 
         <p className="mt-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          There is no updater. autostand ships no updater plugin and never checks for a new
-          version, so moving to a later release means downloading it from the same page.{" "}
+          You download this once. From 1.2.0 onwards, Settings → Advanced → Updates installs later
+          versions in place — checked only when you ask, and verified against autostand&apos;s own
+          signing key before anything is replaced.{" "}
           <a
             className="rounded-sm font-medium text-primary underline underline-offset-2 transition-colors hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            href={RELEASE_NOTES_URL}
+            href={release.notesUrl}
           >
-            Read the 1.0.0 release notes
+            Read the {release.version} release notes
           </a>
           .
         </p>

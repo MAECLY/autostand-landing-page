@@ -19,18 +19,22 @@ import { Download } from "lucide-react";
 
 import { Screenshot } from "@/components/Screenshot";
 
+import { getLatestRelease } from "@/lib/release";
+
 const REPO_URL = "https://github.com/MAECLY/autostand";
 
 /** The site's inline-link treatment, kept in step with Faq.tsx and Download.tsx. */
 const LINK_CLASS =
   "rounded-sm font-medium text-primary underline underline-offset-2 transition-colors hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
-export function Hero() {
+export async function Hero() {
+  const release = await getLatestRelease();
+
   return (
     <section className="hero-gradient border-b border-border">
       <div className="mx-auto flex max-w-6xl flex-col items-center px-6 pb-16 pt-20 sm:pb-24 sm:pt-28">
         <Badge variant="outline" className="bg-surface">
-          v1.0.0 · local-first · open source · MIT
+          v{release.version} · local-first · open source · MIT
         </Badge>
 
         <h1 className="mt-6 max-w-4xl text-center text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-hero">
@@ -46,7 +50,7 @@ export function Hero() {
         <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           <a className={buttonVariants({ size: "lg" })} href="#download">
             <Download aria-hidden="true" />
-            Download 1.0.0
+            Download {release.version}
           </a>
           <a className={buttonVariants({ variant: "outline", size: "lg" })} href={REPO_URL}>
             <AuditGithubIcon />
