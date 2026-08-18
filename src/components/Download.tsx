@@ -73,7 +73,7 @@ const PLATFORMS: readonly Platform[] = [
     Icon: Laptop,
     name: "macOS",
     asset: "macos",
-    requirement: "Apple Silicon only. The build is arm64, so an Intel Mac cannot run it.",
+    requirement: "Apple Silicon (M1–M4). Intel Macs need the x64 build instead.",
     caveatTitle: "macOS will say the app is damaged. It is not.",
     caveat: (
       <>
@@ -207,7 +207,17 @@ export async function Download({ id = "download", className }: DownloadProps) {
                     </Badge>
                   </div>
                   <CardTitle>{name}</CardTitle>
-                  <p className="break-words font-mono text-xs text-muted-foreground">{release[asset]}</p>
+                  <p className="break-words font-mono text-xs text-muted-foreground">
+                    {release[asset]}
+                    {platformId === "macos" && release.macosIntel !== null ? (
+                      <>
+                        <br />
+                        <span className="text-muted-foreground">
+                          Intel: {release.macosIntel}
+                        </span>
+                      </>
+                    ) : null}
+                  </p>
                 </CardHeader>
 
                 <CardContent className="flex flex-1 flex-col gap-4 p-6 pt-0">

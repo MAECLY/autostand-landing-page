@@ -66,7 +66,7 @@ test.describe("with JavaScript", () => {
     }
 
     // Each section owns a heading, so the page outline is not a wall of prose.
-    await expect(page.getByRole("heading", { name: "autostand 1.0.0" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^autostand \d+\.\d+\.\d+$/ })).toBeVisible();
     await expect(page.getByRole("heading", { name: "One compile a day" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
     await expect(
@@ -87,7 +87,7 @@ test.describe("with JavaScript", () => {
 
   test("puts a real capture of the app above the fold", async ({ page }) => {
     // The hero used to hold a hand-drawn recreation of the dashboard, because
-    // there was nothing to photograph. v1.0.0 ships, so this is a PNG of the real
+    // there was nothing to photograph. A release ships, so this is a PNG of the real
     // UI — and it is the page's LCP, which is what the two attributes pin.
     const hero = page.locator('main img[src="/screenshots/01-dashboard.png"]');
     await expect(hero).toHaveCount(1);
@@ -133,9 +133,11 @@ test.describe("with JavaScript", () => {
     // The release attaches exactly one asset per platform. Naming the wrong file
     // sends someone to a download that is not there.
     const download = page.locator("#download");
-    await expect(download.getByText("autostand_1.0.0_aarch64.dmg")).toBeVisible();
-    await expect(download.getByText("autostand_1.0.0_x64-setup.exe")).toBeVisible();
-    await expect(download.getByText("autostand_1.0.0_amd64.AppImage")).toBeVisible();
+    // Patterns, not literals: the filenames carry the version, which comes from
+    // whatever release is current at build time.
+    await expect(download.getByText(/^autostand_\d+\.\d+\.\d+_aarch64\.dmg$/)).toBeVisible();
+    await expect(download.getByText(/^autostand_\d+\.\d+\.\d+_x64-setup\.exe$/)).toBeVisible();
+    await expect(download.getByText(/^autostand_\d+\.\d+\.\d+_amd64\.AppImage$/)).toBeVisible();
 
     // All three reachable, always — the platform hint only highlights one.
     const links = download.getByRole("link", { name: /^Download for / });
@@ -160,7 +162,7 @@ test.describe("with JavaScript", () => {
     // "Linux" on its own promises RHEL 9, Alpine and ARM boards a build made on
     // ubuntu-22.04 cannot deliver.
     const linuxCard = page.locator("#download li", {
-      hasText: "autostand_1.0.0_amd64.AppImage",
+      hasText: /autostand_\d+\.\d+\.\d+_amd64\.AppImage/,
     });
     await expect(linuxCard).toHaveCount(1);
 

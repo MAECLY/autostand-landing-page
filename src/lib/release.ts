@@ -25,7 +25,28 @@
  */
 
 const REPO = "MAECLY/autostand";
-const LATEST_RELEASE_API = `https://api.github.com/repos/${REPO}/releases/latest`;
+
+/**
+ * The endpoint, with a per-deployment cache key.
+ *
+ * Next caches `fetch` results in `.next/cache`, and Vercel restores that cache
+ * between deployments — so a plain request is answered from the previous build's
+ * copy and the version never moves. Measured, not assumed: a rebuild right after
+ * publishing 1.2.0 still rendered 1.0.0.
+ *
+ * The commit sha would not fix it. The deploy this exists for is triggered by a
+ * release, which redeploys the *same* commit — same sha, same cache key, same
+ * stale answer. The deployment id is the thing that is different every time.
+ * GitHub ignores the extra parameter.
+ */
+function latestReleaseUrl(): string {
+  const url = new URL(`https://api.github.com/repos/${REPO}/releases/latest`);
+  const deployment = process.env.VERCEL_DEPLOYMENT_ID;
+  if (deployment !== undefined && deployment !== "") {
+    url.searchParams.set("deployment", deployment);
+  }
+  return url.toString();
+}
 
 /**
  * What the page shows when GitHub cannot be reached during a build.
@@ -44,6 +65,12 @@ export interface ReleaseAssets {
   readonly notesUrl: string;
   /** Installer filenames, exactly as they appear on the release. */
   readonly macos: string;
+  /**
+   * The Intel build. `null` for a release that predates it — 1.2.0 and earlier
+   * shipped arm64 only, and offering an Intel Mac a file that does not exist is
+   * worse than telling it there is none.
+   */
+  readonly macosIntel: string | null;
   readonly windows: string;
   readonly linux: string;
   /** False when the build fell back, so a page can say so if it wants to. */
@@ -54,6 +81,7 @@ export interface ReleaseAssets {
 function expectedAssets(version: string) {
   return {
     macos: `autostand_${version}_aarch64.dmg`,
+    macosIntel: `autostand_${version}_x64.dmg`,
     windows: `autostand_${version}_x64-setup.exe`,
     linux: `autostand_${version}_amd64.AppImage`,
   };
@@ -71,6 +99,8 @@ function fallback(reason: string): ReleaseAssets {
     tag: `v${FALLBACK_VERSION}`,
     notesUrl: `https://github.com/${REPO}/releases/tag/v${FALLBACK_VERSION}`,
     ...expectedAssets(FALLBACK_VERSION),
+    // The fallback describes a release that exists, and 1.2.0 has no Intel dmg.
+    macosIntel: null,
     live: false,
   };
 }
@@ -94,16 +124,18 @@ interface GithubRelease {
  */
 export async function getLatestRelease(): Promise<ReleaseAssets> {
   try {
-    const response = await fetch(LATEST_RELEASE_API, {
+    const response = await fetch(latestReleaseUrl(), {
       headers: {
         Accept: "application/vnd.github+json",
         "User-Agent": "autostand-landing-page",
       },
-      // NOT `no-store`. In a static export that marks the route dynamic, which
+      // NOT `no-store`: in a static export that marks the route dynamic, which
       // Next refuses, and the throw lands in the catch below — leaving the page
-      // silently pinned to the fallback while looking like it fetched. The
-      // default is exactly right here: fetched once, at build time.
-      next: { revalidate: false },
+      // silently pinned to the fallback while looking like it fetched.
+      //
+      // A short TTL as well as the per-deployment key, so a local `pnpm build`
+      // run twice in a row still picks up a release published in between.
+      next: { revalidate: 60 },
     });
     if (!response.ok) return fallback(`GitHub answered ${response.status}`);
 
@@ -123,7 +155,10 @@ export async function getLatestRelease(): Promise<ReleaseAssets> {
       version,
       tag,
       notesUrl: release.html_url ?? `https://github.com/${REPO}/releases/tag/${tag}`,
-      macos: pick(".dmg", expected.macos),
+      // Two .dmg files now, distinguished by architecture. `find` on ".dmg"
+      // alone would hand an Intel Mac whichever came first in the asset list.
+      macos: pick("_aarch64.dmg", expected.macos),
+      macosIntel: names.find((name) => name.endsWith("_x64.dmg")) ?? null,
       windows: pick("-setup.exe", expected.windows),
       linux: pick(".AppImage", expected.linux),
       live: true,

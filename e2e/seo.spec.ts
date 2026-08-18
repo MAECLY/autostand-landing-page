@@ -21,8 +21,12 @@ import { faqAccordion, gotoLanding, hydrated } from "./fixtures";
 /** The origin every absolute URL in the markup has to name. */
 const SITE_ORIGIN = "https://autostand.maecly.com";
 
-/** The release the page describes: github.com/MAECLY/autostand/releases/tag/v1.0.0. */
-const VERSION = "1.0.0";
+/**
+ * The version is read from the latest release at build time, so a test that
+ * pins a number fails on the next release rather than on a real defect. These
+ * assert the shape: a semver, and a download URL that names the same one.
+ */
+const SEMVER = /^\d+\.\d+\.\d+$/;
 
 interface Node {
   readonly "@type": string;
@@ -76,10 +80,13 @@ test("the JSON-LD parses and describes the site, the org and the app", async ({ 
   expect(app.name).toBe("autostand");
   expect(app.applicationCategory).toBe("DeveloperApplication");
   expect(app.operatingSystem).toBe("macOS, Windows, Linux");
-  expect(app.softwareVersion).toBe(VERSION);
+  expect(app.softwareVersion).toMatch(SEMVER);
   // A download URL that does not point at the release it claims is the one
   // error here a human never notices and a user always does.
-  expect(app.downloadUrl).toBe(`https://github.com/MAECLY/autostand/releases/tag/v${VERSION}`);
+  // The tag in the download URL has to be the version it claims to describe.
+  expect(app.downloadUrl).toBe(
+    `https://github.com/MAECLY/autostand/releases/tag/v${String(app.softwareVersion)}`,
+  );
   // The app is free. Without the offer, Google reads the page as being *about*
   // software rather than offering it.
   expect(app.offers).toEqual({ "@type": "Offer", price: "0", priceCurrency: "USD" });
