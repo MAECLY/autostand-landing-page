@@ -73,7 +73,7 @@ const PLATFORMS: readonly Platform[] = [
     Icon: Laptop,
     name: "macOS",
     asset: "macos",
-    requirement: "Apple Silicon. Intel Macs run the same build through Rosetta 2.",
+    requirement: "Apple Silicon only. The build is arm64, so an Intel Mac cannot run it.",
     caveatTitle: "macOS will say the app is damaged. It is not.",
     caveat: (
       <>

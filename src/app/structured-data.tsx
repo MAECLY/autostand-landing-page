@@ -32,7 +32,7 @@ const LICENSE_URL = "https://opensource.org/licenses/MIT";
  * glibc 2.35 is a floor and not a preference.
  */
 const REQUIREMENTS =
-  "macOS on Apple Silicon (Intel via Rosetta 2); Windows x64; Linux x86_64 with glibc 2.35 or newer";
+  "macOS on Apple Silicon (arm64 only, not Intel); Windows x64; Linux x86_64 with glibc 2.35 or newer";
 
 /** Straight from the product CHANGELOG. Nothing aspirational. */
 const FEATURES = [

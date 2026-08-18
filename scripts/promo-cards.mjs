@@ -282,7 +282,7 @@ const CARDS = [
       <h1>One installer per platform. <em>No build required.</em></h1>
       <div class="plats">
         <div class="p"><h3>macOS</h3><div class="f">.dmg</div>
-          <div class="n">Apple Silicon. Intel runs it through Rosetta 2.</div></div>
+          <div class="n">Apple Silicon only. The build is arm64, not Intel.</div></div>
         <div class="p"><h3>Windows</h3><div class="f">-setup.exe</div>
           <div class="n">64-bit. An NSIS installer, not a portable exe.</div></div>
         <div class="p"><h3>Linux</h3><div class="f">.AppImage</div>
