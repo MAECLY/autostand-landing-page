@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { StructuredData } from "./structured-data";
 import "./globals.css";
@@ -126,6 +127,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             builds no cross-site profile, and it only reports when this site is
             served from Vercel — a local `pnpm build` sends nothing. */}
         <Analytics />
+        {/* Core Web Vitals from real visits rather than a lab run. Same shape as
+            Analytics above: an edge-served script, no cookie, nothing reported
+            from a local build. LCP is the one number this page can regress
+            quietly — the hero capture is the largest element on it. */}
+        <SpeedInsights />
       </body>
     </html>
   );
