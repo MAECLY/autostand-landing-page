@@ -67,7 +67,9 @@ test.describe("with JavaScript", () => {
 
     // Each section owns a heading, so the page outline is not a wall of prose.
     await expect(page.getByRole("heading", { name: /^autostand \d+\.\d+\.\d+$/ })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "One compile a day" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "A standup you can check, line by line." }),
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Every bullet says where it came from" }),
@@ -103,8 +105,8 @@ test.describe("with JavaScript", () => {
 
   test("every capture below the fold is lazy and describes itself", async ({ page }) => {
     const captures = page.locator('main img[src^="/screenshots/"]');
-    // The hero plus the three in the features section.
-    await expect(captures).toHaveCount(4);
+    // The hero plus the two product-shot tiles in the bento.
+    await expect(captures).toHaveCount(3);
 
     const described = await captures.evaluateAll((elements) =>
       elements.map((element) => {
@@ -211,11 +213,15 @@ test.describe("without JavaScript", () => {
   });
 });
 
-test("only the three chrome components declare a client boundary", () => {
+test("only the chrome components and the one reveal declare a client boundary", () => {
   // The runtime equivalent of the Astro suite's "two islands and only those".
   // `"use client"` is the whole declaration in Next, so this is where a section
   // quietly acquiring a bundle shows up — a static marketing page has no business
   // shipping one for a card grid or a table.
+  //
+  // TraceReveal is the fourth and is meant to be noticed: it exists to stage one
+  // animation, adds no markup, and is the reason this list is not three. A fifth
+  // needs the same kind of justification.
   // `config.rootDir` is the testDir (./e2e), not the repo root, so the source
   // tree is resolved from the config file when Playwright reports one.
   const { configFile, rootDir } = test.info().config;
@@ -228,5 +234,10 @@ test("only the three chrome components declare a client boundary", () => {
     .filter((entry) => /^\s*(["'])use client\1/m.test(readFileSync(join(componentsDir, entry), "utf8")))
     .sort();
 
-  expect(clientComponents).toEqual(["Faq.tsx", "Navbar.tsx", "ThemeToggle.tsx"]);
+  expect(clientComponents).toEqual([
+    "Faq.tsx",
+    "Navbar.tsx",
+    "ThemeToggle.tsx",
+    "TraceReveal.tsx",
+  ]);
 });

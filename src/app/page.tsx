@@ -21,7 +21,8 @@
 import { AuditDemo } from "@/components/AuditDemo";
 import { Download } from "@/components/Download";
 import { Faq } from "@/components/Faq";
-import { Features } from "@/components/Features";
+import { Bento } from "@/components/Bento";
+import { TraceReveal } from "@/components/TraceReveal";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
@@ -47,11 +48,12 @@ export default function Home() {
 
       <main id="main">
         <Hero />
-        {/* Download and Features both sit on the background colour — Card paints
+        {/* Download and the bento both sit on the background colour — Card paints
             itself with the surface token, so a surface band here would swallow
             the cards in both sections. A hairline is what separates them. */}
         <Download className="border-b border-border" />
-        <Features />
+        <Bento />
+        <TraceReveal />
         {/* Tonal band: the pipeline is the middle of the story, and a surface
             strip separates it from the two background-coloured sections around
             it. */}

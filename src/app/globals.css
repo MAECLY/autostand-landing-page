@@ -25,3 +25,43 @@
     color-mix(in srgb, var(--brand-primary) 10%, var(--bg-surface)) 100%
   );
 }
+
+/* The page's one animation: the trace rows resolving, one after another, when
+   the bento scrolls into view. It earns the exception because it is the product
+   made literal — evidence arriving, then the sentence it became.
+
+   CSS-only staging. The rows start settled and are only moved by `.is-staged`,
+   which a small observer adds and then removes; with JavaScript off, or before
+   the observer runs, the tile is simply readable. Animating *to* the resting
+   state rather than away from it is what keeps the no-JS case correct. */
+.trace-row {
+  transition:
+    opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.trace-row.is-staged {
+  opacity: 0;
+  /* Sideways, not up: the row is a thing arriving from the evidence column. */
+  transform: translateX(-0.5rem);
+}
+
+/* Each row lands after the one above it, so the eye reads them in order. */
+.trace-row:nth-child(2) {
+  transition-delay: 70ms;
+}
+.trace-row:nth-child(3) {
+  transition-delay: 140ms;
+}
+.trace-row:nth-child(4) {
+  transition-delay: 210ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace-row,
+  .trace-row.is-staged {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
