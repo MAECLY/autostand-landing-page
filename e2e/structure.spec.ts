@@ -241,3 +241,38 @@ test("only the chrome components and the one reveal declare a client boundary", 
     "TraceReveal.tsx",
   ]);
 });
+
+/**
+ * The hero's load sequence animates opacity, which is the failure mode worth a
+ * test: an animation that never runs — because motion is reduced, or because a
+ * keyframe name was renamed out from under the class — leaves the card at
+ * `opacity: 0` and the first screen missing its subject, with nothing else
+ * failing.
+ */
+test.describe("the compiled-file card", () => {
+  test("is readable with motion reduced", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto("/");
+
+    const card = page.locator(".compiled-card");
+    await expect(card).toBeVisible();
+    // Every line, not just the card: they carry their own animation and their
+    // own delay, so they can fail independently of it.
+    await expect(page.locator(".compiled-line")).toHaveCount(3);
+    for (const line of await page.locator(".compiled-line").all()) {
+      await expect(line).toBeVisible();
+      expect(await line.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+    }
+    await context.close();
+  });
+
+  test("quotes the AUTO marker verbatim", async ({ page }) => {
+    await page.goto("/");
+    // Case included: the card's whole claim is that it shows the real file, and
+    // `text-transform` on this line would quietly break that.
+    const marker = page.locator(".compiled-card").getByText("<!-- AUTO:mbp-miguel -->");
+    await expect(marker).toBeVisible();
+    expect(await marker.evaluate((el) => getComputedStyle(el).textTransform)).toBe("none");
+  });
+});

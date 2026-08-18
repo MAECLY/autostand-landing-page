@@ -17,6 +17,7 @@ import { buttonVariants } from "@autostand/ui/components/button";
 import { AuditGithubIcon } from "@autostand/ui/icons";
 import { Download } from "lucide-react";
 
+import { CompiledCard } from "@/components/CompiledCard";
 import { Screenshot } from "@/components/Screenshot";
 
 import { getLatestRelease } from "@/lib/release";
@@ -32,22 +33,22 @@ export async function Hero() {
 
   return (
     <section className="hero-gradient border-b border-border">
-      <div className="mx-auto flex max-w-6xl flex-col items-center px-6 pb-16 pt-20 sm:pb-24 sm:pt-28">
+      <div className="mx-auto flex max-w-6xl flex-col items-center px-6 pb-16 pt-14 sm:pb-24 sm:pt-20">
         <Badge variant="outline" className="bg-surface">
           v{release.version} · local-first · open source · MIT
         </Badge>
 
-        <h1 className="mt-6 max-w-4xl text-center text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-hero">
+        <h1 className="mt-5 max-w-4xl text-center text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-hero">
           Automate your standup.
           <span className="block text-muted-foreground">Know what you did.</span>
         </h1>
 
-        <p className="mt-6 max-w-2xl text-center text-lg text-muted-foreground">
+        <p className="mt-5 max-w-2xl text-center text-lg text-muted-foreground">
           autostand gathers your commits, PRs, and notes — then writes your daily standup for
           you.
         </p>
 
-        <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+        <div className="mt-7 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           <a className={buttonVariants({ size: "lg" })} href="#download">
             <Download aria-hidden="true" />
             Download {release.version}
@@ -67,14 +68,24 @@ export async function Hero() {
           .
         </p>
 
-        <Screenshot
-          className="mt-14 w-full text-center"
-          priority
-          src="/screenshots/01-dashboard.png"
-          window="autostand — Dashboard"
-          alt="The autostand dashboard, headed “Today's work — Aug 3, 2026” and filed in 2026-08-04.md, the next business day's standup. Two AUTO blocks sit under it, one per machine — mbp-miguel and linux-lab — above a MANUAL block badged “never overwritten”."
-          caption="Monday's work, filed into the next business day's standup. One AUTO block per machine; the MANUAL block is yours."
-        />
+        {/* The screenshot says where it happens; the card says what you end up
+            with. Overlapped rather than stacked, because the two are one moment:
+            this file is what that window just wrote.
+
+            Below `lg` the card sits under the capture instead. A 384px card
+            floating over a 390px screenshot covers the thing it is annotating. */}
+        <div className="relative mt-10 w-full">
+          <Screenshot
+            className="w-full text-center"
+            priority
+            crop="21rem"
+            src="/screenshots/01-dashboard.png"
+            window="autostand — Dashboard"
+            alt="The autostand dashboard, headed “Today's work — Aug 3, 2026” and filed in 2026-08-04.md, the next business day's standup. Two AUTO blocks sit under it, one per machine — mbp-miguel and linux-lab — above a MANUAL block badged “never overwritten”."
+            caption="Monday's work, filed into the next business day's standup. One AUTO block per machine; the MANUAL block is yours."
+          />
+          <CompiledCard className="mx-auto mt-6 lg:absolute lg:right-[-1.5rem] lg:top-24 lg:mt-0" />
+        </div>
       </div>
     </section>
   );

@@ -49,6 +49,15 @@ export interface ScreenshotProps {
    * showing — the screen, or the file it has open — never "screenshot".
    */
   readonly window?: string;
+  /**
+   * Clip the capture to this CSS height, anchored to the top.
+   *
+   * A 1440x900 capture at full width is ~690px tall, which pushes everything
+   * after it out of the first screen. Cropping shows the part that carries the
+   * meaning and lets the hero end above the fold — the composition is the point,
+   * not the pixel count.
+   */
+  readonly crop?: string;
 }
 
 export function Screenshot({
@@ -58,6 +67,7 @@ export function Screenshot({
   priority = false,
   className,
   window: windowTitle,
+  crop,
 }: ScreenshotProps) {
   return (
     <figure className={cn("flex flex-col gap-3", className)}>
@@ -84,15 +94,23 @@ export function Screenshot({
             </span>
           )}
         </div>
-        <img
-          src={src}
-          alt={alt}
-          width={CAPTURE_WIDTH}
-          height={CAPTURE_HEIGHT}
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : "auto"}
-          className="block h-auto w-full"
-        />
+        {/* The clip is a wrapper, not `object-fit` on the image: the intrinsic
+            width/height attributes have to survive so the browser still reserves
+            the right box before the bytes land. */}
+        <div
+          className={crop === undefined ? undefined : "overflow-hidden"}
+          style={crop === undefined ? undefined : { maxHeight: crop }}
+        >
+          <img
+            src={src}
+            alt={alt}
+            width={CAPTURE_WIDTH}
+            height={CAPTURE_HEIGHT}
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            className="block h-auto w-full"
+          />
+        </div>
       </div>
       {caption === undefined ? null : (
         <figcaption className="text-sm leading-relaxed text-muted-foreground">{caption}</figcaption>
