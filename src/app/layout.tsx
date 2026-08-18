@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 
 import { StructuredData } from "./structured-data";
 import "./globals.css";
@@ -119,6 +120,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         {children}
+        {/* Page views for this marketing site. It does not contradict the "no
+            telemetry" the footer and the FAQ promise: those are about the app,
+            which has no server to report to. Vercel Analytics sets no cookie and
+            builds no cross-site profile, and it only reports when this site is
+            served from Vercel — a local `pnpm build` sends nothing. */}
+        <Analytics />
       </body>
     </html>
   );

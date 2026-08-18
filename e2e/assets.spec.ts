@@ -46,7 +46,13 @@ test("loads the page without a single failed request", async ({ page }) => {
   await page.waitForLoadState("networkidle");
   page.off("response", record);
 
-  const failed = recorded.filter((entry) => entry.status >= 400);
+  const failed = recorded
+    .filter((entry) => entry.status >= 400)
+    // Vercel serves this from its edge, so it exists in production and nowhere
+    // else — this suite runs against `out/` on a local static server, where a
+    // 404 is the correct answer. Named rather than loosened: any other broken
+    // request still fails the test.
+    .filter((entry) => entry.pathname !== "/_vercel/insights/script.js");
   expect(failed, `failed requests:\n${failed.map((f) => `  ${f.status} ${f.url}`).join("\n")}`)
     .toEqual([]);
 
