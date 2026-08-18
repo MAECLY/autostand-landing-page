@@ -72,12 +72,14 @@ export function Screenshot({
             <span className="size-2.5 rounded-full bg-border-strong/50" />
             <span className="size-2.5 rounded-full bg-border-strong/30" />
           </span>
-          {/* min-w-0 flex-1: the title is one nowrap monospace string, so
-              without it the bar's minimum width is however wide that string
-              renders — which depends on which mono face the reader's platform
-              falls back to, and pushed the page sideways at 320px on Linux. */}
+          {/* `w-0 flex-1`, not `truncate` alone. The title is one nowrap string,
+              and neither truncate nor min-w-0 stops it counting toward the flex
+              row's min-content — which floors the grid track this figure sits in
+              and pushed the page sideways at 320px, by an amount that varied
+              with the title and the platform's font. A definite zero width does
+              collapse it; flex-grow then gives the ellipsis its room back. */}
           {windowTitle === undefined ? null : (
-            <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">
+            <span className="w-0 min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">
               {windowTitle}
             </span>
           )}
