@@ -1,5 +1,7 @@
 # autostand landing page
 
+[![Stars](https://img.shields.io/github/stars/MAECLY/autostand-landing-page?style=flat-square)](https://github.com/MAECLY/autostand-landing-page/stargazers) [![Views](https://hits.sh/github.com/MAECLY/autostand-landing-page.svg?label=views&style=flat-square)](https://hits.sh/github.com/MAECLY/autostand-landing-page/) [![Last commit](https://img.shields.io/github/last-commit/MAECLY/autostand-landing-page?style=flat-square)](https://github.com/MAECLY/autostand-landing-page/commits/main)
+
 The public marketing site for [autostand](https://github.com/MAECLY/autostand).
 One page, prerendered to static HTML at build time. No analytics, no
 third-party scripts, no forms, no cookies.
