@@ -20,6 +20,7 @@ import { Download } from "lucide-react";
 import { CompiledCard } from "@/components/CompiledCard";
 import { Screenshot } from "@/components/Screenshot";
 
+import { formatDownloads, formatStars, getReach, isShown } from "@/lib/reach";
 import { getLatestRelease } from "@/lib/release";
 
 const REPO_URL = "https://github.com/MAECLY/autostand";
@@ -29,7 +30,14 @@ const LINK_CLASS =
   "rounded-sm font-medium text-primary underline underline-offset-2 transition-colors hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export async function Hero() {
-  const release = await getLatestRelease();
+  const [release, reach] = await Promise.all([getLatestRelease(), getReach()]);
+
+  // Only what was measured and is above zero. A miss or a zero renders nothing —
+  // no placeholder, no pinned number (see src/lib/reach.ts).
+  const proof = [
+    isShown(reach.downloads) ? formatDownloads(reach.downloads) : null,
+    isShown(reach.stars) ? `${formatStars(reach.stars)} on GitHub` : null,
+  ].filter((item): item is string => item !== null);
 
   return (
     <section className="hero-gradient border-b border-border">
@@ -58,6 +66,17 @@ export async function Hero() {
             Get it on GitHub
           </a>
         </div>
+
+        {proof.length > 0 ? (
+          // Under the two buttons it counts for: downloads of the installers, stars
+          // on the repository the second button opens. Counted at build time.
+          <p
+            data-testid="hero-reach"
+            className="mt-4 text-center text-sm font-medium tabular-nums text-muted-foreground"
+          >
+            {proof.join(" · ")}
+          </p>
+        ) : null}
 
         <p className="mt-4 max-w-xl text-center text-sm text-muted-foreground">
           macOS, Windows and Linux. The bundles are unsigned, so the first launch takes one extra

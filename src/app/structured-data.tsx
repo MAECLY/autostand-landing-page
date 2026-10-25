@@ -1,3 +1,4 @@
+import { getReach, isShown, type Reach } from "@/lib/reach";
 import { getLatestRelease, type ReleaseAssets } from "@/lib/release";
 
 /**
@@ -131,7 +132,12 @@ export interface StructuredDataProps {
   readonly description: string;
 }
 
-function buildGraph({ siteUrl, description, release }: StructuredDataProps & { release: ReleaseAssets }) {
+function buildGraph({
+  siteUrl,
+  description,
+  release,
+  reach,
+}: StructuredDataProps & { release: ReleaseAssets; reach: Reach }) {
   const organizationId = `${siteUrl}/#organization`;
   const websiteId = `${siteUrl}/#website`;
   const personId = `${siteUrl}/#author`;
@@ -192,6 +198,17 @@ function buildGraph({ siteUrl, description, release }: StructuredDataProps & { r
         author: { "@id": personId },
         publisher: { "@id": organizationId },
         sameAs: [REPO_URL],
+        // The same count the hero prints, under the same rule: only when it was
+        // measured and is above zero, so the markup never claims more than the page.
+        ...(isShown(reach.downloads)
+          ? {
+              interactionStatistic: {
+                "@type": "InteractionCounter",
+                interactionType: "https://schema.org/DownloadAction",
+                userInteractionCount: reach.downloads,
+              },
+            }
+          : {}),
       },
       {
         "@type": "FAQPage",
@@ -237,13 +254,13 @@ function serialize(graph: unknown): string {
 export async function StructuredData(props: StructuredDataProps) {
   // Async for the same reason the download section is: `softwareVersion` is a
   // claim a crawler indexes, and a stale one is worse than none.
-  const release = await getLatestRelease();
+  const [release, reach] = await Promise.all([getLatestRelease(), getReach()]);
   return (
     <script
       type="application/ld+json"
       // Not user input and not interpolated: a compile-time object run through
       // JSON.stringify and escaped above. Keep it that way.
-      dangerouslySetInnerHTML={{ __html: serialize(buildGraph({ ...props, release })) }}
+      dangerouslySetInnerHTML={{ __html: serialize(buildGraph({ ...props, release, reach })) }}
     />
   );
 }
